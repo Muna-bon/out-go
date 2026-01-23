@@ -14,13 +14,13 @@ import campingImage from "@/assets/activity-camping.jpg";
 import gymImage from "@/assets/activity-gym.jpg";
 
 const categories = [
-  { name: "Walking & Jogging", icon: Footprints, count: 248, color: "#f97316" },
-  { name: "Fitness & Workouts", icon: Dumbbell, count: 186, color: "#ef4444" },
-  { name: "Hiking", icon: Mountain, count: 124, color: "#22c55e" },
-  { name: "Camping", icon: Tent, count: 89, color: "#d97706" },
-  { name: "Wellness Programs", icon: Heart, count: 156, color: "#a855f7" },
-  { name: "Gym Programs", icon: Building2, count: 212, color: "#3b82f6" },
-  { name: "Sightseeing", icon: Camera, count: 97, color: "#0891b2" },
+  { name: "Walking & Jogging", icon: Footprints, count: 248, color: "hsl(217, 91%, 53%)" },
+  { name: "Fitness & Workouts", icon: Dumbbell, count: 186, color: "hsl(199, 89%, 60%)" },
+  { name: "Hiking", icon: Mountain, count: 124, color: "hsl(145, 60%, 40%)" },
+  { name: "Camping", icon: Tent, count: 89, color: "hsl(30, 70%, 45%)" },
+  { name: "Wellness Programs", icon: Heart, count: 156, color: "hsl(280, 60%, 55%)" },
+  { name: "Gym Programs", icon: Building2, count: 212, color: "hsl(217, 91%, 53%)" },
+  { name: "Sightseeing", icon: Camera, count: 97, color: "hsl(199, 89%, 60%)" },
 ];
 
 const featuredActivities = [
