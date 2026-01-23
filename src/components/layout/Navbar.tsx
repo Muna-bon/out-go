@@ -7,6 +7,7 @@ import logo from "@/assets/outgo-logo.png";
 
 const navLinks = [
   { name: "Discover", path: "/discover" },
+  { name: "Find Partner", path: "/find-partner" },
   { name: "Events", path: "/events" },
   { name: "Gyms & Vendors", path: "/vendors" },
   { name: "Create Activity", path: "/create" },

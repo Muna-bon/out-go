@@ -6,93 +6,93 @@
 
 @layer base {
   :root {
-    /* Core Brand Colors - Warm Sunset/Sunrise Theme */
-    --background: 30 50% 98%;
-    --foreground: 220 20% 15%;
+    /* Core Brand Colors - Blue Theme */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Primary - Vibrant Coral/Orange */
-    --primary: 18 90% 55%;
+    /* Primary - Vibrant Blue #2563EB */
+    --primary: 217 91% 53%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Deep Teal */
-    --secondary: 175 60% 35%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary - Sky Blue #38BDF8 */
+    --secondary: 199 89% 60%;
+    --secondary-foreground: 222 47% 11%;
 
-    /* Accent - Warm Gold */
-    --accent: 40 95% 55%;
-    --accent-foreground: 220 20% 15%;
+    /* Accent - Light Sky Blue */
+    --accent: 199 89% 70%;
+    --accent-foreground: 222 47% 11%;
 
-    --muted: 30 20% 94%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 88%;
-    --input: 30 20% 88%;
-    --ring: 18 90% 55%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 53%;
 
     --radius: 0.75rem;
 
     /* Custom OutGo tokens */
-    --gradient-sunrise: linear-gradient(135deg, hsl(18, 90%, 55%) 0%, hsl(40, 95%, 55%) 100%);
-    --gradient-ocean: linear-gradient(135deg, hsl(175, 60%, 35%) 0%, hsl(195, 70%, 45%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(18, 90%, 55%) 0%, hsl(350, 80%, 55%) 50%, hsl(40, 95%, 55%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(30, 50%, 98%) 100%);
+    --gradient-sunrise: linear-gradient(135deg, hsl(217, 91%, 53%) 0%, hsl(199, 89%, 60%) 100%);
+    --gradient-ocean: linear-gradient(135deg, hsl(199, 89%, 60%) 0%, hsl(217, 91%, 53%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(217, 91%, 53%) 0%, hsl(199, 89%, 60%) 50%, hsl(217, 91%, 63%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(210, 40%, 98%) 100%);
     
-    --shadow-soft: 0 4px 20px -4px hsl(220 20% 15% / 0.08);
-    --shadow-card: 0 8px 30px -8px hsl(220 20% 15% / 0.12);
-    --shadow-elevated: 0 20px 50px -15px hsl(220 20% 15% / 0.15);
-    --shadow-glow: 0 0 40px -10px hsl(18 90% 55% / 0.4);
+    --shadow-soft: 0 4px 20px -4px hsl(222 47% 11% / 0.08);
+    --shadow-card: 0 8px 30px -8px hsl(222 47% 11% / 0.12);
+    --shadow-elevated: 0 20px 50px -15px hsl(222 47% 11% / 0.15);
+    --shadow-glow: 0 0 40px -10px hsl(217 91% 53% / 0.4);
 
     /* Category Colors */
-    --walking: 18 90% 55%;
-    --fitness: 350 80% 55%;
+    --walking: 217 91% 53%;
+    --fitness: 199 89% 60%;
     --hiking: 145 60% 40%;
     --camping: 30 70% 45%;
     --wellness: 280 60% 55%;
-    --gym: 220 70% 50%;
-    --sightseeing: 195 80% 45%;
+    --gym: 217 91% 53%;
+    --sightseeing: 199 89% 60%;
   }
 
   .dark {
-    --background: 220 25% 10%;
-    --foreground: 30 20% 95%;
+    --background: 222 47% 8%;
+    --foreground: 210 40% 98%;
 
-    --card: 220 25% 14%;
-    --card-foreground: 30 20% 95%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 25% 14%;
-    --popover-foreground: 30 20% 95%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 18 90% 58%;
+    --primary: 217 91% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 175 50% 45%;
+    --secondary: 199 85% 55%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 40 90% 50%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 199 85% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --muted: 220 20% 20%;
-    --muted-foreground: 30 10% 65%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 22%;
-    --input: 220 20% 22%;
-    --ring: 18 90% 58%;
+    --border: 217 33% 22%;
+    --input: 217 33% 22%;
+    --ring: 217 91% 58%;
 
-    --gradient-sunrise: linear-gradient(135deg, hsl(18, 90%, 58%) 0%, hsl(40, 90%, 50%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(18, 90%, 55%) 0%, hsl(350, 70%, 50%) 50%, hsl(40, 90%, 50%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(220, 25%, 14%) 0%, hsl(220, 25%, 12%) 100%);
+    --gradient-sunrise: linear-gradient(135deg, hsl(217, 91%, 58%) 0%, hsl(199, 85%, 55%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(217, 91%, 58%) 0%, hsl(199, 85%, 55%) 50%, hsl(217, 91%, 63%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(222, 47%, 11%) 0%, hsl(222, 47%, 9%) 100%);
     
     --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
     --shadow-card: 0 8px 30px -8px hsl(0 0% 0% / 0.4);
