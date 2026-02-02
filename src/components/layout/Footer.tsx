@@ -2,6 +2,23 @@ import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import logo from "@/assets/outgo-logo.png";
 
+const quickLinks = [
+  { name: "Discover Activities", path: "/discover" },
+  { name: "Browse Events", path: "/events" },
+  { name: "Find Gyms", path: "/vendors" },
+  { name: "Create Activity", path: "/create" },
+  { name: "How It Works", path: "/how-it-works" },
+];
+
+const categoryLinks = [
+  { name: "Walking & Jogging", path: "/category/walking-jogging" },
+  { name: "Fitness & Workouts", path: "/category/fitness-workouts" },
+  { name: "Hiking & Camping", path: "/category/hiking" },
+  { name: "Wellness Programs", path: "/category/wellness-programs" },
+  { name: "Group Exercises", path: "/category/gym-programs" },
+  { name: "Sightseeing", path: "/category/sightseeing" },
+];
+
 const Footer = () => {
   return (
     <footer className="bg-foreground text-background/80">
@@ -30,10 +47,10 @@ const Footer = () => {
           <div>
             <h4 className="text-background font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-3">
-              {["Discover Activities", "Browse Events", "Find Gyms", "Create Activity", "How It Works"].map((item) => (
-                <li key={item}>
-                  <Link to="#" className="text-background/60 hover:text-primary transition-colors text-sm">
-                    {item}
+              {quickLinks.map((item) => (
+                <li key={item.name}>
+                  <Link to={item.path} className="text-background/60 hover:text-primary transition-colors text-sm">
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -44,10 +61,10 @@ const Footer = () => {
           <div>
             <h4 className="text-background font-semibold mb-4">Categories</h4>
             <ul className="space-y-3">
-              {["Walking & Jogging", "Fitness & Workouts", "Hiking & Camping", "Wellness Programs", "Group Exercises", "Sightseeing"].map((item) => (
-                <li key={item}>
-                  <Link to="#" className="text-background/60 hover:text-primary transition-colors text-sm">
-                    {item}
+              {categoryLinks.map((item) => (
+                <li key={item.name}>
+                  <Link to={item.path} className="text-background/60 hover:text-primary transition-colors text-sm">
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -79,10 +96,10 @@ const Footer = () => {
             © 2026 OutGo. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="#" className="text-background/50 hover:text-background text-sm transition-colors">
+            <Link to="/privacy-policy" className="text-background/50 hover:text-background text-sm transition-colors">
               Privacy Policy
             </Link>
-            <Link to="#" className="text-background/50 hover:text-background text-sm transition-colors">
+            <Link to="/terms-of-service" className="text-background/50 hover:text-background text-sm transition-colors">
               Terms of Service
             </Link>
           </div>
