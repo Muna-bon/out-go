@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Filter, MapPin, Grid, List, SlidersHorizontal } from "lucide-react";
+import { MapPin, Grid, List, SlidersHorizontal } from "lucide-react";
 import { Footprints, Dumbbell, Mountain, Tent, Heart, Building2, Camera } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import SearchBar from "@/components/ui/search-bar";
 import ActivityCard from "@/components/cards/ActivityCard";
 import yogaImage from "@/assets/activity-yoga.jpg";
@@ -24,112 +24,70 @@ const categories = [
 ];
 
 const activities = [
-  {
-    id: "1",
-    title: "Sunrise Yoga in Central Park",
-    category: "Wellness",
-    image: yogaImage,
-    location: "Central Park, New York",
-    date: "Jan 25, 2026",
-    time: "6:30 AM",
-    participants: 18,
-    maxParticipants: 25,
-    organizer: "Sarah M.",
-  },
-  {
-    id: "2",
-    title: "Morning Run Club - Coastal Trail",
-    category: "Walking & Jogging",
-    image: runningImage,
-    location: "Santa Monica Beach, LA",
-    date: "Jan 26, 2026",
-    time: "7:00 AM",
-    participants: 12,
-    maxParticipants: 20,
-    organizer: "Mike R.",
-  },
-  {
-    id: "3",
-    title: "Weekend Camping Adventure",
-    category: "Camping",
-    image: campingImage,
-    location: "Yosemite National Park",
-    date: "Jan 31, 2026",
-    time: "2:00 PM",
-    participants: 8,
-    maxParticipants: 12,
-    organizer: "Adventure Co.",
-  },
-  {
-    id: "4",
-    title: "HIIT Group Training Session",
-    category: "Fitness",
-    image: gymImage,
-    location: "FitLife Gym, Downtown",
-    date: "Jan 24, 2026",
-    time: "5:30 PM",
-    participants: 15,
-    maxParticipants: 20,
-    organizer: "Coach Alex",
-  },
-  {
-    id: "5",
-    title: "Sunset Beach Walk",
-    category: "Walking & Jogging",
-    image: runningImage,
-    location: "Venice Beach, CA",
-    date: "Jan 27, 2026",
-    time: "5:00 PM",
-    participants: 8,
-    organizer: "Beach Walkers Club",
-  },
-  {
-    id: "6",
-    title: "Mountain Hiking Expedition",
-    category: "Hiking",
-    image: campingImage,
-    location: "Rocky Mountain Trail",
-    date: "Feb 2, 2026",
-    time: "8:00 AM",
-    participants: 6,
-    maxParticipants: 15,
-    organizer: "Trail Blazers",
-  },
-  {
-    id: "7",
-    title: "Morning Meditation & Stretch",
-    category: "Wellness",
-    image: yogaImage,
-    location: "Zen Garden Studio",
-    date: "Jan 28, 2026",
-    time: "7:00 AM",
-    participants: 10,
-    maxParticipants: 20,
-    organizer: "Mindful Living",
-  },
-  {
-    id: "8",
-    title: "CrossFit Beginners Class",
-    category: "Gym",
-    image: gymImage,
-    location: "PowerBox Gym",
-    date: "Jan 29, 2026",
-    time: "6:00 PM",
-    participants: 12,
-    maxParticipants: 16,
-    organizer: "Coach James",
-  },
+  { id: "1", title: "Sunrise Yoga in Central Park", category: "Wellness", image: yogaImage, location: "Central Park, New York", date: "Jan 25, 2026", time: "6:30 AM", participants: 18, maxParticipants: 25, organizer: "Sarah M." },
+  { id: "2", title: "Morning Run Club - Coastal Trail", category: "Walking & Jogging", image: runningImage, location: "Santa Monica Beach, LA", date: "Jan 26, 2026", time: "7:00 AM", participants: 12, maxParticipants: 20, organizer: "Mike R." },
+  { id: "3", title: "Weekend Camping Adventure", category: "Camping", image: campingImage, location: "Yosemite National Park", date: "Jan 31, 2026", time: "2:00 PM", participants: 8, maxParticipants: 12, organizer: "Adventure Co." },
+  { id: "4", title: "HIIT Group Training Session", category: "Fitness", image: gymImage, location: "FitLife Gym, Downtown", date: "Jan 24, 2026", time: "5:30 PM", participants: 15, maxParticipants: 20, organizer: "Coach Alex" },
+  { id: "5", title: "Sunset Beach Walk", category: "Walking & Jogging", image: runningImage, location: "Venice Beach, CA", date: "Jan 27, 2026", time: "5:00 PM", participants: 8, organizer: "Beach Walkers Club" },
+  { id: "6", title: "Mountain Hiking Expedition", category: "Hiking", image: campingImage, location: "Rocky Mountain Trail", date: "Feb 2, 2026", time: "8:00 AM", participants: 6, maxParticipants: 15, organizer: "Trail Blazers" },
+  { id: "7", title: "Morning Meditation & Stretch", category: "Wellness", image: yogaImage, location: "Zen Garden Studio", date: "Jan 28, 2026", time: "7:00 AM", participants: 10, maxParticipants: 20, organizer: "Mindful Living" },
+  { id: "8", title: "CrossFit Beginners Class", category: "Gym", image: gymImage, location: "PowerBox Gym", date: "Jan 29, 2026", time: "6:00 PM", participants: 12, maxParticipants: 16, organizer: "Coach James" },
 ];
 
 const Discover = () => {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchParams] = useSearchParams();
+  const urlQuery = searchParams.get("q") || "";
+  const urlLocation = searchParams.get("location") || "";
+  const urlCategory = searchParams.get("category") || "";
 
-  const filteredActivities = activeCategory === "All"
-    ? activities
-    : activities.filter((a) => 
+  const [activeCategory, setActiveCategory] = useState(urlCategory ? categories.find(c => c.name.toLowerCase() === urlCategory.toLowerCase())?.name || "All" : "All");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState("relevance");
+  const [localQuery, setLocalQuery] = useState(urlQuery);
+  const [localLocation, setLocalLocation] = useState(urlLocation);
+
+  const filteredActivities = useMemo(() => {
+    let result = activities;
+
+    // Category filter
+    if (activeCategory !== "All") {
+      result = result.filter((a) =>
         a.category.toLowerCase().includes(activeCategory.toLowerCase())
       );
+    }
+
+    // Search query filter
+    const q = localQuery || urlQuery;
+    if (q) {
+      const lower = q.toLowerCase();
+      result = result.filter((a) =>
+        a.title.toLowerCase().includes(lower) ||
+        a.category.toLowerCase().includes(lower) ||
+        a.organizer.toLowerCase().includes(lower)
+      );
+    }
+
+    // Location filter
+    const loc = localLocation || urlLocation;
+    if (loc) {
+      const lower = loc.toLowerCase();
+      result = result.filter((a) => a.location.toLowerCase().includes(lower));
+    }
+
+    // Sorting
+    if (sortBy === "date") {
+      result = [...result].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    } else if (sortBy === "popularity") {
+      result = [...result].sort((a, b) => b.participants - a.participants);
+    }
+
+    return result;
+  }, [activeCategory, localQuery, urlQuery, localLocation, urlLocation, sortBy]);
+
+  const handleInPageSearch = (query: string, location: string) => {
+    setLocalQuery(query);
+    setLocalLocation(location);
+  };
 
   return (
     <Layout>
@@ -141,15 +99,13 @@ const Discover = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              Discover Activities
-            </h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">Discover Activities</h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Find wellness and outdoor activities happening near you
             </p>
           </motion.div>
 
-          <SearchBar />
+          <SearchBar onSearch={(q, loc) => handleInPageSearch(q, loc)} />
         </div>
       </section>
 
@@ -157,7 +113,6 @@ const Discover = () => {
       <section className="py-6 border-b border-border sticky top-16 lg:top-20 bg-background/95 backdrop-blur-md z-30">
         <div className="container-app">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            {/* Category Pills */}
             <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
               {categories.map((cat) => (
                 <Button
@@ -173,34 +128,19 @@ const Discover = () => {
               ))}
             </div>
 
-            {/* View & Filter Controls */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span>New York, NY</span>
+                <span>{localLocation || urlLocation || "All locations"}</span>
               </div>
               <div className="flex items-center border border-border rounded-lg">
-                <Button
-                  variant={viewMode === "grid" ? "secondary" : "ghost"}
-                  size="icon"
-                  className="h-8 w-8 rounded-r-none"
-                  onClick={() => setViewMode("grid")}
-                >
+                <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-r-none" onClick={() => setViewMode("grid")}>
                   <Grid className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant={viewMode === "list" ? "secondary" : "ghost"}
-                  size="icon"
-                  className="h-8 w-8 rounded-l-none"
-                  onClick={() => setViewMode("list")}
-                >
+                <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-l-none" onClick={() => setViewMode("list")}>
                   <List className="h-4 w-4" />
                 </Button>
               </div>
-              <Button variant="outline" size="sm" className="gap-2">
-                <SlidersHorizontal className="h-4 w-4" />
-                Filters
-              </Button>
             </div>
           </div>
         </div>
@@ -213,30 +153,24 @@ const Discover = () => {
             <p className="text-muted-foreground">
               Showing <span className="font-semibold text-foreground">{filteredActivities.length}</span> activities
             </p>
-            <select className="bg-background border border-border rounded-lg px-3 py-2 text-sm">
-              <option>Sort by: Relevance</option>
-              <option>Sort by: Date</option>
-              <option>Sort by: Distance</option>
-              <option>Sort by: Popularity</option>
+            <select
+              className="bg-background border border-border rounded-lg px-3 py-2 text-sm"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="relevance">Sort by: Relevance</option>
+              <option value="date">Sort by: Date</option>
+              <option value="popularity">Sort by: Popularity</option>
             </select>
           </div>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className={`grid gap-6 ${
-              viewMode === "grid"
-                ? "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                : "grid-cols-1"
-            }`}
+            className={`grid gap-6 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"}`}
           >
             {filteredActivities.map((activity, index) => (
-              <motion.div
-                key={activity.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
+              <motion.div key={activity.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
                 <ActivityCard {...activity} />
               </motion.div>
             ))}
@@ -244,15 +178,9 @@ const Discover = () => {
 
           {filteredActivities.length === 0 && (
             <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">
-                No activities found for this category.
-              </p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => setActiveCategory("All")}
-              >
-                View All Activities
+              <p className="text-muted-foreground text-lg">No activities found matching your filters.</p>
+              <Button variant="outline" className="mt-4" onClick={() => { setActiveCategory("All"); setLocalQuery(""); setLocalLocation(""); }}>
+                Clear All Filters
               </Button>
             </div>
           )}

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, MapPin, Calendar, Sparkles, Play, ChevronRight } from "lucide-react";
+import { ArrowRight, Users, MapPin, Calendar, Sparkles, ChevronRight } from "lucide-react";
 import { Footprints, Dumbbell, Mountain, Tent, Heart, Building2, Camera } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -85,9 +85,7 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.1 },
   },
 };
 
@@ -101,13 +99,8 @@ const Index = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* Background Image */}
         <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="People hiking together"
-            className="w-full h-full object-cover"
-          />
+          <img src={heroImage} alt="People hiking together" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
         </div>
 
@@ -138,26 +131,20 @@ const Index = () => {
               find your tribe and embrace an active lifestyle together.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            <div className="mb-12">
               <Link to="/discover">
                 <Button variant="hero" size="xl" className="gap-2">
                   Explore Activities
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="heroOutline" size="xl" className="gap-2">
-                <Play className="h-5 w-5" />
-                Watch How It Works
-              </Button>
             </div>
 
             {/* Stats */}
             <div className="flex flex-wrap gap-8">
               {stats.map((stat) => (
                 <div key={stat.label}>
-                  <div className="text-2xl md:text-3xl font-bold text-primary-foreground">
-                    {stat.value}
-                  </div>
+                  <div className="text-2xl md:text-3xl font-bold text-primary-foreground">{stat.value}</div>
                   <div className="text-sm text-primary-foreground/60">{stat.label}</div>
                 </div>
               ))}
@@ -165,7 +152,6 @@ const Index = () => {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -198,9 +184,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Explore by Category
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Explore by Category</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Find activities that match your interests and fitness goals
             </p>
@@ -232,12 +216,8 @@ const Index = () => {
             className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12"
           >
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Activities Near You
-              </h2>
-              <p className="text-muted-foreground text-lg">
-                Join popular activities happening in your area
-              </p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Activities Near You</h2>
+              <p className="text-muted-foreground text-lg">Join popular activities happening in your area</p>
             </div>
             <Link to="/discover">
               <Button variant="outline" className="gap-2 group">
@@ -272,34 +252,15 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              How OutGo Works
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Get started in three simple steps
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">How OutGo Works</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Get started in three simple steps</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              {
-                step: "01",
-                icon: MapPin,
-                title: "Discover Activities",
-                description: "Browse activities near you based on your location, interests, and schedule.",
-              },
-              {
-                step: "02",
-                icon: Users,
-                title: "Connect with Others",
-                description: "Join activities created by others or invite people to your own events.",
-              },
-              {
-                step: "03",
-                icon: Calendar,
-                title: "Get Active Together",
-                description: "Show up, enjoy the activity, and build lasting connections.",
-              },
+              { step: "01", icon: MapPin, title: "Discover Activities", description: "Browse activities near you based on your location, interests, and schedule." },
+              { step: "02", icon: Users, title: "Connect with Others", description: "Join activities created by others or invite people to your own events." },
+              { step: "03", icon: Calendar, title: "Get Active Together", description: "Show up, enjoy the activity, and build lasting connections." },
             ].map((item, index) => (
               <motion.div
                 key={item.step}
@@ -333,7 +294,6 @@ const Index = () => {
             className="gradient-bg-hero rounded-3xl p-10 md:p-16 text-center relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnYyaDR2MmgtNHYyaDJ2MmgtMnYtMmgtNHYyaC0ydi0yaDR2LTJoLTJ2LTJoMnYyaDR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
-            
             <div className="relative z-10">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6">
                 Ready to Get Moving?
@@ -348,7 +308,7 @@ const Index = () => {
                     <ArrowRight className="h-5 w-5" />
                   </Button>
                 </Link>
-                <Link to="/vendors">
+                <Link to="/vendor-signup">
                   <Button variant="heroOutline" size="xl">
                     Partner With Us
                   </Button>
