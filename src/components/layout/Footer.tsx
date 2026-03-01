@@ -26,7 +26,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <img src={logo} alt="OutGo" className="h-12 w-auto mb-4 brightness-0 invert" />
+            <Link to="/">
+              <img src={logo} alt="OutGo" className="h-14 w-auto mb-4 brightness-0 invert" />
+            </Link>
             <p className="text-background/60 text-sm leading-relaxed mb-6">
               Connect with others for wellness activities. Discover, organize, and participate in outdoor adventures near you.
             </p>
@@ -92,16 +94,10 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-background/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-background/50 text-sm">
-            © 2026 OutGo. All rights reserved.
-          </p>
+          <p className="text-background/50 text-sm">© 2026 OutGo. All rights reserved.</p>
           <div className="flex gap-6">
-            <Link to="/privacy-policy" className="text-background/50 hover:text-background text-sm transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms-of-service" className="text-background/50 hover:text-background text-sm transition-colors">
-              Terms of Service
-            </Link>
+            <Link to="/privacy-policy" className="text-background/50 hover:text-background text-sm transition-colors">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-background/50 hover:text-background text-sm transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
