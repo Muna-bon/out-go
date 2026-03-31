@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Filter, Users, Clock, Footprints, Search, Zap } from "lucide-react";
 import Layout from "@/components/layout/Layout";
@@ -13,99 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PartnerCard from "@/components/cards/PartnerCard";
-
-const mockPartners = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    avatar: null,
-    age: 28,
-    distance: "0.5 miles",
-    activityType: "Walking",
-    preferredTime: "Morning",
-    pace: "Moderate",
-    bio: "Love morning walks with good conversation. Looking for a consistent walking buddy!",
-    interests: ["Nature walks", "Coffee after", "Dogs welcome"],
-    rating: 4.8,
-    completedPairings: 24,
-    isOnline: true,
-  },
-  {
-    id: "2",
-    name: "Mike Chen",
-    avatar: null,
-    age: 32,
-    distance: "0.8 miles",
-    activityType: "Jogging",
-    preferredTime: "Evening",
-    pace: "Fast",
-    bio: "Training for my first marathon. Looking for someone to push me!",
-    interests: ["Marathon prep", "Trail running", "Fitness goals"],
-    rating: 4.9,
-    completedPairings: 56,
-    isOnline: true,
-  },
-  {
-    id: "3",
-    name: "Emily Davis",
-    avatar: null,
-    age: 26,
-    distance: "1.2 miles",
-    activityType: "Walking",
-    preferredTime: "Afternoon",
-    pace: "Leisurely",
-    bio: "New to the area and looking to explore! Love photography during walks.",
-    interests: ["Photography", "Exploring", "Parks"],
-    rating: 4.7,
-    completedPairings: 12,
-    isOnline: false,
-  },
-  {
-    id: "4",
-    name: "James Wilson",
-    avatar: null,
-    age: 35,
-    distance: "1.5 miles",
-    activityType: "Jogging",
-    preferredTime: "Morning",
-    pace: "Moderate",
-    bio: "Dad of two, trying to stay fit. Early morning jogs work best for me.",
-    interests: ["Health goals", "Work-life balance", "Weekend runs"],
-    rating: 4.6,
-    completedPairings: 18,
-    isOnline: true,
-  },
-  {
-    id: "5",
-    name: "Lisa Park",
-    avatar: null,
-    age: 29,
-    distance: "2.0 miles",
-    activityType: "Walking",
-    preferredTime: "Evening",
-    pace: "Moderate",
-    bio: "Podcast lover looking for walking companions. Let's chat and walk!",
-    interests: ["Podcasts", "Sunset walks", "Beach"],
-    rating: 4.9,
-    completedPairings: 42,
-    isOnline: false,
-  },
-  {
-    id: "6",
-    name: "David Brown",
-    avatar: null,
-    age: 31,
-    distance: "0.3 miles",
-    activityType: "Jogging",
-    preferredTime: "Morning",
-    pace: "Fast",
-    bio: "Former college athlete. Happy to help beginners too!",
-    interests: ["Coaching", "Interval training", "Hills"],
-    rating: 5.0,
-    completedPairings: 89,
-    isOnline: true,
-  },
-];
+import LocationPicker from "@/components/dropdowns/LocationPicker";
+import { getPartners } from "@/lib/api";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -121,18 +30,32 @@ const itemVariants = {
 };
 
 const FindPartner = () => {
+  const [partners, setPartners] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activityFilter, setActivityFilter] = useState("all");
   const [paceFilter, setPaceFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
+  const [location, setLocation] = useState<string>("New York, NY");
 
-  const filteredPartners = mockPartners.filter((partner) => {
-    const matchesSearch = partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      partner.bio.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesActivity = activityFilter === "all" || partner.activityType.toLowerCase() === activityFilter;
-    const matchesPace = paceFilter === "all" || partner.pace.toLowerCase() === paceFilter;
-    const matchesTime = timeFilter === "all" || partner.preferredTime.toLowerCase() === timeFilter;
-    
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const data = await getPartners();
+        setPartners(data);
+      } catch (error) {
+        console.error("Failed to fetch partners:", error);
+      }
+    };
+    fetchPartners();
+  }, []);
+
+  const filteredPartners = partners.filter((partner) => {
+    const matchesSearch = partner.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      partner.bio?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesActivity = activityFilter === "all" || partner.activity_type?.toLowerCase() === activityFilter;
+    const matchesPace = paceFilter === "all" || partner.pace?.toLowerCase() === paceFilter;
+    const matchesTime = timeFilter === "all" || partner.preferred_time?.toLowerCase() === timeFilter;
+
     return matchesSearch && matchesActivity && matchesPace && matchesTime;
   });
 
@@ -154,7 +77,7 @@ const FindPartner = () => {
               Never Walk Alone
             </h1>
             <p className="text-lg text-primary-foreground/80 mb-8">
-              Connect with people nearby who share your passion for walking and jogging. 
+              Connect with people nearby who share your passion for walking and jogging.
               Find the perfect partner based on pace, schedule, and interests.
             </p>
 
@@ -275,9 +198,12 @@ const FindPartner = () => {
             <h2 className="text-xl font-semibold">
               {filteredPartners.length} partners near you
             </h2>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              <span>New York, NY</span>
+            <div className="flex flex-col sm:flex-row items-center gap-2 text-sm text-foreground">
+              <span className="text-muted-foreground hidden sm:block">Searching near:</span>
+              <div className="flex items-center bg-muted/50 rounded-full pr-1">
+                <LocationPicker value={location} onChange={setLocation} />
+                <span className="font-medium pr-3">{location}</span>
+              </div>
             </div>
           </div>
 

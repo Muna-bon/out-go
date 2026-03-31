@@ -2,12 +2,13 @@ import { motion } from "framer-motion";
 import { MapPin, Star, Clock, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface VendorCardProps {
   id: string;
   name: string;
   type: string;
-  image: string;
+  image?: string;
   location: string;
   rating: number;
   reviewCount: number;
@@ -17,6 +18,7 @@ interface VendorCardProps {
 }
 
 const VendorCard = ({
+  id,
   name,
   type,
   image,
@@ -27,6 +29,7 @@ const VendorCard = ({
   verified,
   services,
 }: VendorCardProps) => {
+  const navigate = useNavigate();
   return (
     <motion.div
       whileHover={{ y: -6 }}
@@ -34,12 +37,20 @@ const VendorCard = ({
       className="card-elevated overflow-hidden group"
     >
       {/* Image */}
-      <div className="relative h-44 overflow-hidden">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
+        {image ? (
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-20 h-20 rounded-2xl bg-background/80 backdrop-blur-sm flex items-center justify-center">
+              <span className="text-3xl font-bold text-primary">{name.charAt(0)}</span>
+            </div>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
         {verified && (
           <div className="absolute top-3 right-3 flex items-center gap-1 bg-secondary/90 backdrop-blur-sm text-secondary-foreground px-2 py-1 rounded-lg text-xs font-medium">
@@ -89,7 +100,7 @@ const VendorCard = ({
           )}
         </div>
 
-        <Button className="w-full" variant="outline">
+        <Button className="w-full" variant="outline" onClick={() => navigate(`/vendor/${id}`)}>
           View Details
         </Button>
       </div>

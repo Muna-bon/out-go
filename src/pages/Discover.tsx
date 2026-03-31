@@ -177,12 +177,22 @@ const Discover = () => {
           </motion.div>
 
           {filteredActivities.length === 0 && (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">No activities found matching your filters.</p>
-              <Button variant="outline" className="mt-4" onClick={() => { setActiveCategory("All"); setLocalQuery(""); setLocalLocation(""); }}>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-20"
+            >
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/10 to-accent/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <SlidersHorizontal className="h-10 w-10 text-primary/40" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No activities found</h3>
+              <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                We couldn't find any activities matching your filters. Try broadening your search or explore a different category.
+              </p>
+              <Button variant="outline" className="gap-2" onClick={() => { setActiveCategory("All"); setLocalQuery(""); setLocalLocation(""); }}>
                 Clear All Filters
               </Button>
-            </div>
+            </motion.div>
           )}
         </div>
       </section>

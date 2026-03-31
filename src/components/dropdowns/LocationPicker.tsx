@@ -18,15 +18,22 @@ const popularLocations = [
   "Seattle, WA",
 ];
 
-const LocationPicker = () => {
+const LocationPicker = ({ value, onChange }: { value?: string | null, onChange?: (val: string) => void }) => {
   const [open, setOpen] = useState(false);
-  const [location, setLocation] = useState<string | null>(null);
+  const [internalLocation, setInternalLocation] = useState<string | null>(null);
+
+  const location = value !== undefined ? value : internalLocation;
+  const setLocation = (loc: string) => {
+    if (onChange) onChange(loc);
+    setInternalLocation(loc);
+  };
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isLocating, setIsLocating] = useState(false);
 
   const handleUseCurrentLocation = () => {
     setIsLocating(true);
-    
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {

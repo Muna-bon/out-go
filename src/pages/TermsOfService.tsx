@@ -18,14 +18,14 @@ const TermsOfService = () => {
                 <section>
                   <h2 className="text-xl font-semibold mb-4">1. Acceptance of Terms</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    By accessing or using OutGo, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this service.
+                    By accessing or using OwtGo, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this service.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-xl font-semibold mb-4">2. Use of Service</h2>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    You agree to use OutGo only for lawful purposes and in accordance with these Terms. You agree not to:
+                    You agree to use OwtGo only for lawful purposes and in accordance with these Terms. You agree not to:
                   </p>
                   <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                     <li>Use the service in any way that violates applicable laws</li>
@@ -47,21 +47,21 @@ const TermsOfService = () => {
                 <section>
                   <h2 className="text-xl font-semibold mb-4">4. Activity Participation</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    OutGo facilitates connections between users for wellness activities. We are not responsible for the conduct of activity organizers or participants. Users participate in activities at their own risk and should exercise appropriate caution.
+                    OwtGo facilitates connections between users for wellness activities. We are not responsible for the conduct of activity organizers or participants. Users participate in activities at their own risk and should exercise appropriate caution.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-xl font-semibold mb-4">5. Content</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    You retain ownership of content you post on OutGo. By posting content, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute that content in connection with our service.
+                    You retain ownership of content you post on OwtGo. By posting content, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute that content in connection with our service.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-xl font-semibold mb-4">6. Disclaimer</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    OutGo is provided "as is" without warranties of any kind. We do not guarantee that the service will be uninterrupted, secure, or error-free. We are not liable for any injuries, damages, or losses arising from your use of the service.
+                    OwtGo is provided "as is" without warranties of any kind. We do not guarantee that the service will be uninterrupted, secure, or error-free. We are not liable for any injuries, damages, or losses arising from your use of the service.
                   </p>
                 </section>
 
@@ -75,7 +75,7 @@ const TermsOfService = () => {
                 <section>
                   <h2 className="text-xl font-semibold mb-4">8. Contact</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    For questions about these Terms of Service, please contact us at legal@outgo.app.
+                    For questions about these Terms of Service, please contact us at legal@owtgo.app.
                   </p>
                 </section>
               </div>

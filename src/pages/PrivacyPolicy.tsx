@@ -61,7 +61,7 @@ const PrivacyPolicy = () => {
                 <section>
                   <h2 className="text-xl font-semibold mb-4">6. Contact Us</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    If you have any questions about this Privacy Policy, please contact us at privacy@outgo.app.
+                    If you have any questions about this Privacy Policy, please contact us at privacy@owtgo.app.
                   </p>
                 </section>
               </div>

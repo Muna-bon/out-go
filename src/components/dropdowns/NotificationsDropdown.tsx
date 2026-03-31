@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, Calendar, Users, CheckCircle, X, Settings } from "lucide-react";
 import {
@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/contexts/AuthContext";
+import { getMyNotifications, markNotificationsAsRead } from "@/lib/api";
+import { formatDistanceToNow } from "date-fns";
 
 interface Notification {
   id: string;
@@ -50,7 +53,7 @@ const initialNotifications: Notification[] = [
   {
     id: "4",
     type: "system",
-    title: "Welcome to OutGo!",
+    title: "Welcome to OwtGo!",
     message: "Complete your profile to get personalized recommendations",
     time: "1 day ago",
     read: true,
@@ -59,18 +62,29 @@ const initialNotifications: Notification[] = [
 ];
 
 const NotificationsDropdown = () => {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (user && open) {
+      getMyNotifications()
+        .then((data) => setNotifications(data || []))
+        .catch(() => setNotifications([]));
+    }
+  }, [user, open]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
+    await markNotificationsAsRead([id]);
     setNotifications(
       notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
+    await markNotificationsAsRead();
     setNotifications(notifications.map((n) => ({ ...n, read: true })));
   };
 
@@ -78,7 +92,7 @@ const NotificationsDropdown = () => {
     setNotifications(notifications.filter((n) => n.id !== id));
   };
 
-  const getIcon = (type: Notification["type"]) => {
+  const getIcon = (type: string) => {
     switch (type) {
       case "pairing":
         return <Users className="h-4 w-4 text-primary" />;
@@ -112,7 +126,7 @@ const NotificationsDropdown = () => {
                 Mark all read
               </Button>
             )}
-            <Link to="/settings/notifications">
+            <Link to="/settings" onClick={() => setOpen(false)}>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <Settings className="h-4 w-4" />
               </Button>
@@ -126,9 +140,8 @@ const NotificationsDropdown = () => {
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-muted/50 transition-colors relative ${
-                    !notification.read ? "bg-primary/5" : ""
-                  }`}
+                  className={`p-4 hover:bg-muted/50 transition-colors relative ${!notification.read ? "bg-primary/5" : ""
+                    }`}
                 >
                   <Link
                     to={notification.link || "#"}
@@ -148,7 +161,9 @@ const NotificationsDropdown = () => {
                           {notification.message}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {notification.time}
+                          {notification.created_at
+                            ? formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })
+                            : notification.time || "Just now"}
                         </p>
                       </div>
                     </div>

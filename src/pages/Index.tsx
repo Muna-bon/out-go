@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Users, MapPin, Calendar, Sparkles, ChevronRight } from "lucide-react";
@@ -12,6 +13,7 @@ import yogaImage from "@/assets/activity-yoga.jpg";
 import runningImage from "@/assets/activity-running.jpg";
 import campingImage from "@/assets/activity-camping.jpg";
 import gymImage from "@/assets/activity-gym.jpg";
+import { getEvents } from "@/lib/api";
 
 const categories = [
   { name: "Walking & Jogging", icon: Footprints, count: 248, color: "hsl(217, 91%, 53%)" },
@@ -23,56 +25,7 @@ const categories = [
   { name: "Sightseeing", icon: Camera, count: 97, color: "hsl(199, 89%, 60%)" },
 ];
 
-const featuredActivities = [
-  {
-    id: "1",
-    title: "Sunrise Yoga in Central Park",
-    category: "Wellness",
-    image: yogaImage,
-    location: "Central Park, New York",
-    date: "Jan 25, 2026",
-    time: "6:30 AM",
-    participants: 18,
-    maxParticipants: 25,
-    organizer: "Sarah M.",
-  },
-  {
-    id: "2",
-    title: "Morning Run Club - Coastal Trail",
-    category: "Walking & Jogging",
-    image: runningImage,
-    location: "Santa Monica Beach, LA",
-    date: "Jan 26, 2026",
-    time: "7:00 AM",
-    participants: 12,
-    maxParticipants: 20,
-    organizer: "Mike R.",
-  },
-  {
-    id: "3",
-    title: "Weekend Camping Adventure",
-    category: "Camping",
-    image: campingImage,
-    location: "Yosemite National Park",
-    date: "Jan 31, 2026",
-    time: "2:00 PM",
-    participants: 8,
-    maxParticipants: 12,
-    organizer: "Adventure Co.",
-  },
-  {
-    id: "4",
-    title: "HIIT Group Training Session",
-    category: "Fitness",
-    image: gymImage,
-    location: "FitLife Gym, Downtown",
-    date: "Jan 24, 2026",
-    time: "5:30 PM",
-    participants: 15,
-    maxParticipants: 20,
-    organizer: "Coach Alex",
-  },
-];
+
 
 const stats = [
   { label: "Active Users", value: "50K+" },
@@ -95,6 +48,21 @@ const itemVariants = {
 };
 
 const Index = () => {
+  const [featuredActivities, setFeaturedActivities] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const events = await getEvents();
+        // Since we may not have featured events, just grab the first 4 safely
+        setFeaturedActivities((events || []).slice(0, 4));
+      } catch (error) {
+        console.error("Failed to fetch featured activities:", error);
+      }
+    };
+    fetchFeatured();
+  }, []);
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -127,7 +95,7 @@ const Index = () => {
             </h1>
 
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 leading-relaxed">
-              Discover and join wellness activities near you. From morning jogs to weekend hikes, 
+              Discover and join wellness activities near you. From morning jogs to weekend hikes,
               find your tribe and embrace an active lifestyle together.
             </p>
 
@@ -252,7 +220,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How OutGo Works</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">How OwtGo Works</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Get started in three simple steps</p>
           </motion.div>
 
@@ -299,7 +267,7 @@ const Index = () => {
                 Ready to Get Moving?
               </h2>
               <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-                Join thousands of people who are already connecting, moving, and living healthier lives with OutGo.
+                Join thousands of people who are already connecting, moving, and living healthier lives with OwtGo.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/signup">

@@ -35,7 +35,7 @@ const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
     if (query) params.set("q", query);
     if (location) params.set("location", location);
     if (date) params.set("date", date);
-    
+
     navigate(`/discover?${params.toString()}`);
     onOpenChange(false);
   };
@@ -90,12 +90,14 @@ const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
               />
             </div>
             <div className="relative flex-1">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               <Input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="pl-9 h-10"
+                className="pl-9 h-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full relative z-20 cursor-pointer"
+                onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+                onFocus={(e) => (e.target as HTMLInputElement).showPicker?.()}
               />
             </div>
             <Button onClick={handleSearch} className="h-10 px-6">

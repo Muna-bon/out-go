@@ -14,6 +14,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { getIncomingPairingRequests, processPairingRequest } from "@/lib/api";
+import { formatDistanceToNow } from "date-fns";
+import { useEffect } from "react";
 
 interface PairingRequest {
   id: string;
@@ -108,39 +111,44 @@ const activePairings: ActivePairing[] = [
 ];
 
 const MyPairings = () => {
-  const [requests, setRequests] = useState(incomingRequests);
-  const [sent, setSent] = useState(sentRequests);
-  const [pairings, setPairings] = useState(activePairings);
-  const [selectedRequest, setSelectedRequest] = useState<PairingRequest | null>(null);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [sent, setSent] = useState<any[]>([]);
+  const [pairings, setPairings] = useState<any[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
-  const [selectedPairing, setSelectedPairing] = useState<ActivePairing | null>(null);
+  const [selectedPairing, setSelectedPairing] = useState<any | null>(null);
 
-  const handleAccept = (request: PairingRequest) => {
-    setRequests(requests.filter((r) => r.id !== request.id));
-    setPairings([
-      ...pairings,
-      {
-        id: request.id,
-        name: request.name,
-        activityType: request.activityType,
-        pace: request.pace,
-        preferredTime: request.preferredTime,
-        nextSession: "Schedule your first session",
-        location: "Not set",
-        rating: request.rating,
-        sessionsCompleted: 0,
-      },
-    ]);
-    setSelectedRequest(null);
-    toast.success(`You're now paired with ${request.name}!`, {
-      description: "Schedule your first session together.",
-    });
+  const loadRequests = async () => {
+    try {
+      const inc = await getIncomingPairingRequests();
+      setRequests(inc);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleDecline = (requestId: string) => {
-    setRequests(requests.filter((r) => r.id !== requestId));
-    setSelectedRequest(null);
-    toast.info("Request declined");
+  useEffect(() => {
+    loadRequests();
+  }, []);
+
+  const handleAccept = async (request: any) => {
+    try {
+      await processPairingRequest(request.id, "accepted");
+      toast.success(`You accepted the pairing request!`);
+      loadRequests();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to accept.");
+    }
+  };
+
+  const handleDecline = async (requestId: string) => {
+    try {
+      await processPairingRequest(requestId, "rejected");
+      toast.info("Request declined");
+      loadRequests();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to decline.");
+    }
   };
 
   const handleCancelRequest = (requestId: string) => {
@@ -284,31 +292,33 @@ const MyPairings = () => {
                       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                         <div className="flex items-start gap-4 flex-1">
                           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground text-xl font-bold shrink-0">
-                            {request.name.charAt(0)}
+                            {(request.sender?.name || "U").charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold">{request.name}</h3>
+                              <h3 className="font-semibold">{request.sender?.name || "Unknown"}</h3>
                               <span className="text-sm text-muted-foreground">
-                                {request.age} • {request.distance}
+                                {request.sender?.age || 25} • Local Area
                               </span>
                             </div>
                             <div className="flex flex-wrap gap-2 mb-3">
-                              <Badge variant="outline" className="text-xs">
-                                {request.activityType}
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {request.sender?.activity_type || "Walking"}
                               </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {request.pace}
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {request.sender?.pace || "Moderate"} pace
                               </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {request.preferredTime}
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {request.sender?.preferred_time || "Any time"}
                               </Badge>
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">
-                              "{request.message}"
+                              "{request.message || "I'd love to connect!"}"
                             </p>
                             <p className="text-xs text-muted-foreground mt-2">
-                              {request.sentAt}
+                              Sent {request.created_at
+                                ? formatDistanceToNow(new Date(request.created_at), { addSuffix: true })
+                                : "recently"}
                             </p>
                           </div>
                         </div>

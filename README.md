@@ -1,73 +1,34 @@
-# Welcome to your Lovable project
+# Out-Go
 
-## Project info
+A modern, responsive frontend application for activity discovery, event management, and activity pairings, built with React and Vite.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Currently Present Features
+* **User Interfaces**:
+  * **Authentication**: Login, Signup, and Profile management flows.
+  * **Discover & Categories**: Browse features (`/discover`, `/category/:slug`) with category-based filtering.
+  * **Activities & Events**: View activity details, confirm bookings, browse events, and create new activities (`/create`).
+  * **Social / Pairings**: A dedicated feature to "Find a Partner" (`/find-partner`), view "My Pairings" (`/my-pairings`), and manage personal activities (`/my-activities`).
+  * **Vendor Management**: Specialized flows for vendors including Vendor Signup, Vendor Dashboard, and a public directory of Vendors.
+  * **Static & Info Pages**: Home (`/`), How it Works, Privacy Policy, Terms of Service, and a customized 404 Not Found page.
+* **Design & Architecture**: Client-side routing with `react-router-dom`, complete with light/dark theme support and responsive components built from Radix UI primitives.
 
-## How can I edit this code?
+## 🛠 Tech Stack (Stackset)
+* **Core Framework**: Vite + React 18
+* **Language**: TypeScript
+* **Routing**: React Router DOM (`v6`)
+* **Styling & UI Components**: 
+  * Tailwind CSS (`v3.4`)
+  * Radix UI Base Components (Accordion, Dialog, Hover Card, Select, Tabs, etc.)
+  * Icons via `lucide-react`
+  * Complex animations via `framer-motion` and `tailwindcss-animate`
+  * Additional UI helpers: `embla-carousel-react`, `react-day-picker`, `sonner` (toasts), and `vaul`
+* **Forms & Validation**: `react-hook-form` paired with `zod` schema definitions.
+* **Data Management**: `@tanstack/react-query` configured for robust frontend state and API handling.
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🚧 Missing Features & Future Enhancements
+* **Backend API & Database**: The platform does not currently include a backend. Transitioning mocked integrations to a live API (Node.js/Express, Python, Go, or BaaS like Supabase) with a real database (PostgreSQL/MongoDB) is vital.
+* **Real-Time Partner Matching**: Implementing WebSockets (e.g., Socket.io) to enable real-time updates when users find or accept activity partners ("Pairings").
+* **Payment Integration**: Connecting a service like Stripe or Paystack to handle activity booking fees, event ticket purchases, or vendor subscriptions within the App.
+* **Production Authentication**: Currently mock-based or UI-only. Requires integration with an identity provider (e.g., NextAuth/Auth.js, Clerk, Firebase Auth) to securely secure the User and Vendor dashboards.
+* **Vendor Uploads**: Media upload facilities (AWS S3, Cloudinary) to allow vendors to upload banner images or photos for their newly created activities.
+* **Notifications Engine**: Adding transactional emails (e.g., booking confirmations) and push notifications to alert users of upcoming events or successful partner matches.

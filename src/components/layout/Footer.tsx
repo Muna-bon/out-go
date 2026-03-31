@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
-import logo from "@/assets/outgo-logo.png";
 
 const quickLinks = [
   { name: "Discover Activities", path: "/discover" },
@@ -26,8 +25,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link to="/">
-              <img src={logo} alt="OutGo" className="h-14 w-auto mb-4 brightness-0 invert" />
+            <Link to="/" className="flex items-center gap-1.5 text-xl font-bold tracking-tight text-background mb-4">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                O
+              </span>
+              <span>owt<span className="text-primary">go</span></span>
             </Link>
             <p className="text-background/60 text-sm leading-relaxed mb-6">
               Connect with others for wellness activities. Discover, organize, and participate in outdoor adventures near you.
@@ -87,14 +89,14 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3 text-sm">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-background/60">hello@outgo.app</span>
+                <span className="text-background/60">hello@owtgo.app</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-background/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-background/50 text-sm">© 2026 OutGo. All rights reserved.</p>
+          <p className="text-background/50 text-sm">© 2026 OwtGo. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/privacy-policy" className="text-background/50 hover:text-background text-sm transition-colors">Privacy Policy</Link>
             <Link to="/terms-of-service" className="text-background/50 hover:text-background text-sm transition-colors">Terms of Service</Link>

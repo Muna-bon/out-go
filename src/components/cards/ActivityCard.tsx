@@ -3,18 +3,23 @@ import { Link } from "react-router-dom";
 import { MapPin, Calendar, Users, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getEventPlaceholderImage } from "@/lib/eventImages";
 
 interface ActivityCardProps {
   id: string;
   title: string;
   category: string;
-  image: string;
+  image?: string;
+  image_url?: string;
   location: string;
   date: string;
   time: string;
-  participants: number;
+  participants?: number;
+  registered?: number;
   maxParticipants?: number;
-  organizer: string;
+  capacity?: number;
+  organizer?: string;
+  created_by?: { name: string };
   organizerAvatar?: string;
 }
 
@@ -33,15 +38,24 @@ const ActivityCard = ({
   title,
   category,
   image,
+  image_url,
   location,
   date,
   time,
   participants,
+  registered,
   maxParticipants,
+  capacity,
   organizer,
+  created_by,
 }: ActivityCardProps) => {
-  const categoryKey = category.toLowerCase().split(" ")[0];
+  const categoryKey = (category || "Other").toLowerCase().split(" ")[0];
   const colorClass = categoryColors[categoryKey] || "bg-primary/10 text-primary border-primary/20";
+
+  const displayImage = image_url || image || getEventPlaceholderImage(category);
+  const displayRegistered = registered ?? participants ?? 0;
+  const displayCapacity = capacity === 0 ? "Unlimited" : (capacity ?? maxParticipants);
+  const displayOrganizer = created_by?.name || organizer || "Unknown";
 
   return (
     <Link to={`/activity/${id}`}>
@@ -53,7 +67,7 @@ const ActivityCard = ({
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
           <img
-            src={image}
+            src={displayImage}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -87,7 +101,7 @@ const ActivityCard = ({
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4 text-primary" />
               <span>
-                {participants}{maxParticipants ? `/${maxParticipants}` : ""} joined
+                {displayRegistered}{displayCapacity ? `/${displayCapacity}` : ""} joined
               </span>
             </div>
           </div>
@@ -95,9 +109,9 @@ const ActivityCard = ({
           <div className="flex items-center justify-between pt-4 border-t border-border">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-xs font-medium">
-                {organizer.charAt(0)}
+                {displayOrganizer.charAt(0)}
               </div>
-              <span className="text-sm font-medium">{organizer}</span>
+              <span className="text-sm font-medium line-clamp-1">{displayOrganizer}</span>
             </div>
             <Button size="sm">Join</Button>
           </div>

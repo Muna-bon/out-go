@@ -73,10 +73,10 @@ const HowItWorks = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              How OutGo Works
+              How OwtGo Works
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Getting started with OutGo is simple. Follow these four easy steps
+              Getting started with OwtGo is simple. Follow these four easy steps
               to discover activities, connect with others, and embrace a healthier
               lifestyle.
             </p>
@@ -135,7 +135,7 @@ const HowItWorks = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Why Choose OutGo?
+              Why Choose OwtGo?
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               We're committed to providing a safe, reliable, and enjoyable
@@ -178,7 +178,7 @@ const HowItWorks = () => {
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
               Join thousands of people who are already connecting, moving, and
-              living healthier lives with OutGo.
+              living healthier lives with OwtGo.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/signup">

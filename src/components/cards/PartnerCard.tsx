@@ -9,51 +9,77 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { sendPairingRequest } from "@/lib/api";
 
 interface PartnerCardProps {
   id: string;
   name: string;
-  avatar: string | null;
-  age: number;
-  distance: string;
-  activityType: string;
-  preferredTime: string;
-  pace: string;
-  bio: string;
-  interests: string[];
-  rating: number;
-  completedPairings: number;
-  isOnline: boolean;
+  avatar?: string | null;
+  avatar_url?: string | null;
+  age?: number | null;
+  location?: string | null;
+  activity_type?: string | null;
+  preferred_time?: string | null;
+  pace?: string | null;
+  bio?: string | null;
+  interests?: string[] | null;
+  rating?: number | null;
+  completed_pairings?: number | null;
+  isOnline?: boolean;
 }
 
 const PartnerCard = ({
+  id,
   name,
   avatar,
+  avatar_url,
   age,
-  distance,
-  activityType,
-  preferredTime,
+  location,
+  activity_type,
+  preferred_time,
   pace,
   bio,
   interests,
   rating,
-  completedPairings,
-  isOnline,
+  completed_pairings,
+  isOnline = false,
 }: PartnerCardProps) => {
+  const displayAge = age || 25;
+  const displayDistance = location || "Local Area";
+  const displayActivity = activity_type || "Walking";
+  const displayTime = preferred_time || "Any Time";
+  const displayPace = pace || "Moderate";
+  const displayBio = bio || "Ready to get active!";
+  const displayInterests = interests || ["Fitness", "Health"];
+  const displayRating = rating || 5.0;
+  const displayPairings = completed_pairings || 0;
+  const displayAvatar = avatar_url || avatar;
   const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [message, setMessage] = useState("");
   const [isRequested, setIsRequested] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const isSelf = user?.id === id;
 
-  const handleSendRequest = () => {
-    setIsRequested(true);
-    setShowRequestDialog(false);
-    setMessage("");
-    toast.success(`Pairing request sent to ${name}!`, {
-      description: "You'll be notified when they respond.",
-    });
+  const handleSendRequest = async () => {
+    try {
+      await sendPairingRequest(id, message);
+      setIsRequested(true);
+      setShowRequestDialog(false);
+      setMessage("");
+      toast.success(`Pairing request sent to ${name}!`, {
+        description: "You'll be notified when they respond.",
+      });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send request.");
+    }
   };
 
   const paceColors: Record<string, string> = {
@@ -80,53 +106,57 @@ const PartnerCard = ({
         )}
 
         {/* Avatar & Basic Info */}
-        <div className="flex items-start gap-4 mb-4">
+        <Link to={`/partner/${id}`} className="flex items-start gap-4 mb-4 hover:opacity-80 transition-opacity">
           <div className="relative">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground text-xl font-bold">
-              {name.charAt(0)}
-            </div>
+            {displayAvatar ? (
+              <img src={displayAvatar} alt={name} className="w-16 h-16 rounded-2xl object-cover" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground text-xl font-bold">
+                {name.charAt(0)}
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-lg truncate">{name}</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>{age} years old</span>
+              <span>{displayAge} years old</span>
               <span>•</span>
               <div className="flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5" />
-                <span>{distance}</span>
+                <span className="truncate">{displayDistance}</span>
               </div>
             </div>
             <div className="flex items-center gap-1 mt-1">
               <Star className="h-4 w-4 fill-accent text-accent" />
-              <span className="text-sm font-medium">{rating}</span>
+              <span className="text-sm font-medium">{displayRating}</span>
               <span className="text-sm text-muted-foreground">
-                ({completedPairings} pairings)
+                ({displayPairings} pairings)
               </span>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Activity Info */}
         <div className="flex flex-wrap gap-2 mb-4">
           <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary">
-            {activityType}
+            {displayActivity}
           </Badge>
-          <Badge variant="outline" className={paceColors[pace]}>
+          <Badge variant="outline" className={paceColors[displayPace] || "bg-accent/20 text-accent-foreground border-accent/30"}>
             <Zap className="h-3 w-3 mr-1" />
-            {pace}
+            {displayPace}
           </Badge>
           <Badge variant="outline" className="bg-secondary/10 border-secondary/20 text-secondary-foreground">
             <Clock className="h-3 w-3 mr-1" />
-            {preferredTime}
+            {displayTime}
           </Badge>
         </div>
 
         {/* Bio */}
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{bio}</p>
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{displayBio}</p>
 
         {/* Interests */}
         <div className="flex flex-wrap gap-1.5 mb-6">
-          {interests.map((interest) => (
+          {displayInterests.map((interest) => (
             <span
               key={interest}
               className="text-xs px-2 py-1 bg-muted rounded-full text-muted-foreground"
@@ -137,22 +167,36 @@ const PartnerCard = ({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
-          {isRequested ? (
-            <Button variant="outline" className="flex-1 text-secondary" disabled>
-              <Check className="h-4 w-4 mr-2" />
-              Request Sent
+        {!isSelf && (
+          <div className="flex gap-2">
+            {isRequested ? (
+              <Button variant="outline" className="flex-1 text-secondary" disabled>
+                <Check className="h-4 w-4 mr-2" />
+                Request Sent
+              </Button>
+            ) : (
+              <Button className="flex-1" onClick={() => {
+                if (isAuthenticated) {
+                  setShowRequestDialog(true);
+                } else {
+                  setShowAuthPrompt(true);
+                }
+              }}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Request Pairing
+              </Button>
+            )}
+            <Button variant="outline" size="icon" onClick={() => {
+              if (isAuthenticated) {
+                toast("Messaging feature coming soon!");
+              } else {
+                setShowAuthPrompt(true);
+              }
+            }}>
+              <MessageCircle className="h-4 w-4" />
             </Button>
-          ) : (
-            <Button className="flex-1" onClick={() => setShowRequestDialog(true)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Request Pairing
-            </Button>
-          )}
-          <Button variant="outline" size="icon">
-            <MessageCircle className="h-4 w-4" />
-          </Button>
-        </div>
+          </div>
+        )}
       </motion.div>
 
       {/* Request Dialog */}
@@ -166,13 +210,17 @@ const PartnerCard = ({
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="flex items-center gap-4 p-4 bg-muted rounded-xl">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
-                {name.charAt(0)}
-              </div>
+              {displayAvatar ? (
+                <img src={displayAvatar} alt={name} className="w-12 h-12 rounded-xl object-cover" referrerPolicy="no-referrer" />
+              ) : (
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
+                  {name.charAt(0)}
+                </div>
+              )}
               <div>
                 <p className="font-medium">{name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {activityType} • {pace} pace • {preferredTime}
+                  {displayActivity} • {displayPace} pace • {displayTime}
                 </p>
               </div>
             </div>
@@ -191,6 +239,30 @@ const PartnerCard = ({
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auth Prompt Dialog */}
+      <Dialog open={showAuthPrompt} onOpenChange={setShowAuthPrompt}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign in required</DialogTitle>
+            <DialogDescription>Oops! You need to have an account to take this action. Please log in or sign up to continue.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => {
+              setShowAuthPrompt(false);
+              navigate("/login");
+            }}>
+              Log In
+            </Button>
+            <Button className="w-full sm:w-auto" onClick={() => {
+              setShowAuthPrompt(false);
+              navigate("/signup");
+            }}>
+              Sign Up
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
