@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/outgo-logo.png";
 import SearchDialog from "@/components/dialogs/SearchDialog";
 import NotificationsDropdown from "@/components/dropdowns/NotificationsDropdown";
 import LocationPicker from "@/components/dropdowns/LocationPicker";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { name: "Discover", path: "/discover" },
@@ -19,7 +20,26 @@ const navLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Subscribe to auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <>
@@ -66,16 +86,27 @@ const Navbar = () => {
                   My Activities
                 </Button>
               </Link>
-              <Link to="/login">
-                <Button variant="ghost" size="sm">
-                  Log in
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button size="sm">
-                  Sign up
-                </Button>
-              </Link>
+              {user ? (
+                <Link to="/profile">
+                  <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/10">
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost" size="sm">
+                      Log in
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button size="sm">
+                      Sign up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -132,16 +163,27 @@ const Navbar = () => {
                   My Activities
                 </Link>
                 <div className="pt-4 flex flex-col gap-2">
-                  <Link to="/login" onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" className="w-full">
-                      Log in
-                    </Button>
-                  </Link>
-                  <Link to="/signup" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full">
-                      Sign up
-                    </Button>
-                  </Link>
+                  {user ? (
+                    <Link to="/profile" onClick={() => setIsOpen(false)}>
+                      <Button className="w-full gap-2">
+                        <User className="h-4 w-4" />
+                        My Profile
+                      </Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" className="w-full">
+                          Log in
+                        </Button>
+                      </Link>
+                      <Link to="/signup" onClick={() => setIsOpen(false)}>
+                        <Button className="w-full">
+                          Sign up
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
