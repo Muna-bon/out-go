@@ -131,6 +131,8 @@ const Login = () => {
     } finally {
       setResendingEmail(false);
     }
+  };
+
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
