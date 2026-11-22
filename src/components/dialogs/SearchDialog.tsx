@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, X, MapPin, Calendar, Clock, ArrowRight } from "lucide-react";
+import { Search, X, MapPin, Calendar, Clock, ArrowRight, RefreshCw } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useUserLocation } from "@/context/LocationContext";
 
 interface SearchDialogProps {
   open: boolean;
@@ -26,9 +27,23 @@ const popularCategories = [
 
 const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
   const navigate = useNavigate();
+  const { location: detectedLocation, isLocating, detectLocation } = useUserLocation();
   const [query, setQuery] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(detectedLocation || "");
   const [date, setDate] = useState("");
+
+  useEffect(() => {
+    if (detectedLocation && !location) {
+      setLocation(detectedLocation);
+    }
+  }, [detectedLocation]);
+
+  const handleDetectGPS = async () => {
+    const loc = await detectLocation(false);
+    if (loc) {
+      setLocation(loc);
+    }
+  };
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -83,11 +98,20 @@ const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
             <div className="relative flex-1">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Location"
+                placeholder="City or location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="pl-9 h-10"
+                className="pl-9 pr-8 h-10"
               />
+              <button
+                type="button"
+                onClick={handleDetectGPS}
+                disabled={isLocating}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
+                title="Auto-detect current location"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${isLocating ? "animate-spin text-primary" : ""}`} />
+              </button>
             </div>
             <div className="relative flex-1">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

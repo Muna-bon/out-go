@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Filter, Users, Clock, Footprints, Search, Zap } from "lucide-react";
+import { MapPin, Filter, Users, Clock, Footprints, Search, Zap, RefreshCw } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import PartnerCard from "@/components/cards/PartnerCard";
+import { useUserLocation } from "@/context/LocationContext";
 
 const mockPartners = [
   {
@@ -121,6 +122,7 @@ const itemVariants = {
 };
 
 const FindPartner = () => {
+  const { location: userCity, isLocating, detectLocation } = useUserLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activityFilter, setActivityFilter] = useState("all");
   const [paceFilter, setPaceFilter] = useState("all");
@@ -180,6 +182,28 @@ const FindPartner = () => {
       {/* Filters Section */}
       <section className="py-8 border-b border-border bg-background sticky top-16 lg:top-20 z-40">
         <div className="container-app">
+          {/* Active Location Indicator & Auto-Detect Trigger */}
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2 pb-3 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs text-muted-foreground">Showing partners near:</span>
+              <span className="text-xs font-semibold text-foreground bg-muted/60 px-2.5 py-1 rounded-full border border-border">
+                📍 {userCity}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                await detectLocation(false);
+              }}
+              disabled={isLocating}
+              className="text-xs text-primary hover:underline flex items-center gap-1 font-medium bg-primary/5 hover:bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20 transition-colors"
+            >
+              <RefreshCw className={`h-3 w-3 ${isLocating ? "animate-spin" : ""}`} />
+              {isLocating ? "Detecting GPS..." : "Auto-detect location"}
+            </button>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-4 items-center">
             {/* Search */}
             <div className="relative flex-1 w-full">

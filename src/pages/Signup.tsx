@@ -23,8 +23,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logo from "@/assets/outgo-logo.png";
 import signupHero from "@/assets/signup-hero.jpg";
+import { useUserLocation } from "@/context/LocationContext";
 
 const Signup = () => {
+  const { location: detectedLocation, isLocating, detectLocation } = useUserLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVerificationSent, setIsVerificationSent] = useState(false);
@@ -35,11 +37,25 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    location: "",
+    location: detectedLocation || "",
     password: "",
   });
 
   const navigate = useNavigate();
+
+  // Prefill detected location if available and field is empty
+  useEffect(() => {
+    if (detectedLocation && !formData.location) {
+      setFormData((prev) => ({ ...prev, location: detectedLocation }));
+    }
+  }, [detectedLocation]);
+
+  const handleDetectLocation = async () => {
+    const loc = await detectLocation(false);
+    if (loc) {
+      setFormData((prev) => ({ ...prev, location: loc }));
+    }
+  };
 
   // Cooldown timer countdown for resend button
   useEffect(() => {
@@ -327,18 +343,41 @@ const Signup = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="location">Location</Label>
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        disabled={isLocating}
+                        className="text-xs text-primary hover:underline flex items-center gap-1 font-medium disabled:opacity-50"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${isLocating ? "animate-spin" : ""}`} />
+                        {isLocating ? "Detecting..." : "Auto-detect current location"}
+                      </button>
+                    </div>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                       <Input
                         id="location"
                         type="text"
-                        placeholder="City, State"
-                        className="pl-10 h-12"
+                        placeholder="City, State / Country"
+                        className="pl-10 pr-24 h-12"
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        disabled={isLocating}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-muted hover:bg-muted/80 text-foreground px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border transition-colors flex items-center gap-1"
+                      >
+                        {isLocating ? (
+                          <RefreshCw className="h-3 w-3 animate-spin text-primary" />
+                        ) : (
+                          "📍 Detect"
+                        )}
+                      </button>
                     </div>
                   </div>
 

@@ -37,6 +37,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import ActivityCard from "@/components/cards/ActivityCard";
+import ProfileCompletionModal from "@/components/modals/ProfileCompletionModal";
+import { useUserLocation } from "@/context/LocationContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import yogaImage from "@/assets/activity-yoga.jpg";
@@ -94,9 +96,13 @@ const defaultUpcomingActivities = [
 ];
 
 const Profile = () => {
+  const { location: detectedLocation, isLocating, detectLocation } = useUserLocation();
   const [activeTab, setActiveTab] = useState("upcoming");
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const shouldPromptUpdate = searchParams.get("prompt_update") === "true";
+  const [showBanner, setShowBanner] = useState(shouldPromptUpdate);
 
   // Profile Data State
   const [profile, setProfile] = useState({
@@ -117,16 +123,6 @@ const Profile = () => {
 
   // Modal edit state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    location: "",
-    bio: "",
-    interests: [] as string[],
-    availability: [] as string[],
-  });
-
-  const shouldPromptUpdate = searchParams.get("prompt_update") === "true";
 
   // Check auth user and load profile
   useEffect(() => {
@@ -186,23 +182,6 @@ const Profile = () => {
                 })
               : prev.joinDate,
           }));
-
-          setEditForm({
-            name: loadedName,
-            location: loadedLocation,
-            bio: loadedBio,
-            interests: loadedInterests,
-            availability: loadedAvailability,
-          });
-        } else {
-          // If no active supabase session, initialize edit form with default values
-          setEditForm({
-            name: profile.name,
-            location: profile.location,
-            bio: profile.bio,
-            interests: profile.interests,
-            availability: profile.availability,
-          });
         }
       } catch (err) {
         console.error("Error fetching user profile:", err);
@@ -216,108 +195,12 @@ const Profile = () => {
   useEffect(() => {
     if (shouldPromptUpdate) {
       setIsEditModalOpen(true);
+      setShowBanner(true);
     }
   }, [shouldPromptUpdate]);
 
   const handleOpenEditModal = () => {
-    setEditForm({
-      name: profile.name,
-      location: profile.location,
-      bio: profile.bio,
-      interests: [...profile.interests],
-      availability: [...profile.availability],
-    });
     setIsEditModalOpen(true);
-  };
-
-  const toggleInterest = (interest: string) => {
-    setEditForm((prev) => {
-      const exists = prev.interests.includes(interest);
-      return {
-        ...prev,
-        interests: exists
-          ? prev.interests.filter((i) => i !== interest)
-          : [...prev.interests, interest],
-      };
-    });
-  };
-
-  const toggleAvailability = (time: string) => {
-    setEditForm((prev) => {
-      const exists = prev.availability.includes(time);
-      return {
-        ...prev,
-        availability: exists
-          ? prev.availability.filter((a) => a !== time)
-          : [...prev.availability, time],
-      };
-    });
-  };
-
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-
-    try {
-      // 1. Update Supabase user metadata
-      const { data: authData, error: authError } = await supabase.auth.updateUser({
-        data: {
-          name: editForm.name.trim(),
-          full_name: editForm.name.trim(),
-          location: editForm.location.trim(),
-          bio: editForm.bio.trim(),
-          interests: editForm.interests,
-          availability: editForm.availability,
-        },
-      });
-
-      if (authError) {
-        console.warn("Could not save to Supabase auth metadata:", authError.message);
-      }
-
-      // 2. Also update public.profiles table if user is authenticated
-      const activeUser = authData?.user;
-      if (activeUser) {
-        try {
-          await supabase
-            .from("profiles")
-            .upsert({
-              id: activeUser.id,
-              name: editForm.name.trim(),
-              email: activeUser.email,
-              location: editForm.location.trim(),
-              bio: editForm.bio.trim(),
-              interests: editForm.interests,
-              preferred_time: editForm.availability.join(", "),
-              updated_at: new Date().toISOString(),
-            });
-        } catch (dbErr) {
-          console.warn("Could not upsert into profiles table:", dbErr);
-        }
-      }
-
-      // Update local UI state
-      setProfile((prev) => ({
-        ...prev,
-        name: editForm.name.trim() || prev.name,
-        location: editForm.location.trim() || prev.location,
-        bio: editForm.bio.trim() || prev.bio,
-        interests: editForm.interests,
-        availability: editForm.availability,
-      }));
-
-      toast.success("Profile updated successfully! Welcome to OutGo.");
-      setIsEditModalOpen(false);
-
-      // Clean up URL parameters
-      if (shouldPromptUpdate) {
-        setSearchParams({});
-      }
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to update profile.");
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleSignOut = async () => {
@@ -333,30 +216,43 @@ const Profile = () => {
   return (
     <Layout>
       {/* Welcome & Update Notification Banner */}
-      {shouldPromptUpdate && (
-        <section className="bg-primary/10 border-b border-primary/20 py-4">
+      {showBanner && (
+        <section className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border-b border-primary/20 py-3.5 px-4">
           <div className="container-app flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                <Sparkles className="h-5 w-5" />
+              <div className="h-10 w-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-sm">
+                <Sparkles className="h-5 w-5 animate-pulse" />
               </div>
               <div>
-                <p className="font-semibold text-foreground text-sm">
-                  Welcome aboard! Let's personalize your profile
+                <p className="font-semibold text-foreground text-sm flex items-center gap-2">
+                  Complete your profile to unlock full OutGo features!
+                  <span className="text-[10px] bg-primary/20 text-primary font-bold px-2 py-0.5 rounded-full">
+                    Recommended
+                  </span>
                 </p>
                 <p className="text-muted-foreground text-xs">
-                  Add your bio, fitness interests, and availability to discover the right activities and partners.
+                  Adding your location, bio, and favorite activities ensures you receive accurate partner matches, nearby activity alerts, and verified trust.
                 </p>
               </div>
             </div>
-            <Button
-              size="sm"
-              onClick={handleOpenEditModal}
-              className="gap-2 shrink-0 shadow-sm"
-            >
-              <Edit2 className="h-4 w-4" />
-              Complete Profile Now
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                onClick={handleOpenEditModal}
+                className="gap-2 shadow-sm font-medium"
+              >
+                <Edit2 className="h-3.5 w-3.5" />
+                Complete Profile Now
+              </Button>
+              <button
+                type="button"
+                onClick={() => setShowBanner(false)}
+                className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-background/80 transition-colors"
+                title="Dismiss reminder banner"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </section>
       )}
@@ -405,6 +301,26 @@ const Profile = () => {
                       <MapPin className="h-4 w-4 text-primary" />
                       {profile.location}
                     </span>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const detected = await detectLocation(false);
+                        if (detected) {
+                          setProfile((prev) => ({ ...prev, location: detected }));
+                          try {
+                            await supabase.auth.updateUser({
+                              data: { location: detected },
+                            });
+                          } catch (e) {}
+                        }
+                      }}
+                      disabled={isLocating}
+                      className="text-xs text-primary hover:underline flex items-center gap-1 font-medium bg-primary/5 hover:bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 transition-colors"
+                      title="Auto-detect current location via GPS"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${isLocating ? "animate-spin" : ""}`} />
+                      {isLocating ? "Locating..." : "Auto-detect"}
+                    </button>
                     <span className="flex items-center gap-1.5">
                       <Calendar className="h-4 w-4 text-primary" />
                       Joined {profile.joinDate}
@@ -619,141 +535,30 @@ const Profile = () => {
         </div>
       </section>
 
-      {/* Edit / Complete Profile Dialog */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <DialogTitle className="text-2xl font-bold">
-              {shouldPromptUpdate ? "Complete Your Profile" : "Update Profile"}
-            </DialogTitle>
-            <DialogDescription>
-              Personalize your profile so local activity partners and groups can connect with you.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleSaveProfile} className="space-y-5 pt-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">Full Name</Label>
-                <Input
-                  id="edit-name"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  placeholder="Your full name"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-location">Location</Label>
-                <Input
-                  id="edit-location"
-                  value={editForm.location}
-                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                  placeholder="City, State"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-bio">Bio & Fitness Goals</Label>
-              <Textarea
-                id="edit-bio"
-                value={editForm.bio}
-                onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                placeholder="Share a short intro about yourself, your hobbies, or what kind of activities you enjoy..."
-                className="resize-none h-24 text-sm"
-              />
-            </div>
-
-            {/* Interest Chips */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Activity Interests</Label>
-                <span className="text-xs text-muted-foreground">Select all that apply</span>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {AVAILABLE_INTERESTS.map((interest) => {
-                  const isSelected = editForm.interests.includes(interest);
-                  return (
-                    <button
-                      key={interest}
-                      type="button"
-                      onClick={() => toggleInterest(interest)}
-                      className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-200 border ${
-                        isSelected
-                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                          : "bg-muted/50 hover:bg-muted text-muted-foreground border-border"
-                      }`}
-                    >
-                      {isSelected ? "✓ " : "+ "}
-                      {interest}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Availability Chips */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Preferred Workout / Activity Times</Label>
-                <span className="text-xs text-muted-foreground">Select your free times</span>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {AVAILABLE_AVAILABILITY.map((time) => {
-                  const isSelected = editForm.availability.includes(time);
-                  return (
-                    <button
-                      key={time}
-                      type="button"
-                      onClick={() => toggleAvailability(time)}
-                      className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-200 border ${
-                        isSelected
-                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                          : "bg-muted/50 hover:bg-muted text-muted-foreground border-border"
-                      }`}
-                    >
-                      {isSelected ? "✓ " : "+ "}
-                      {time}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <DialogFooter className="pt-4 flex sm:justify-between items-center gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setIsEditModalOpen(false);
-                  if (shouldPromptUpdate) setSearchParams({});
-                }}
-              >
-                Skip for Now
-              </Button>
-              <Button type="submit" disabled={isSaving} className="gap-2">
-                {isSaving ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-4 w-4" />
-                    Save & Complete Profile
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* Animated Profile Completion Modal */}
+      <ProfileCompletionModal
+        open={isEditModalOpen}
+        onOpenChange={(val) => {
+          setIsEditModalOpen(val);
+          if (!val && shouldPromptUpdate) {
+            setSearchParams({});
+          }
+        }}
+        onProfileUpdated={(updated) => {
+          setProfile((prev) => ({
+            ...prev,
+            ...updated,
+          }));
+          setShowBanner(false);
+        }}
+        initialData={{
+          name: profile.name,
+          location: profile.location !== "Location not set" ? profile.location : detectedLocation || "",
+          bio: profile.bio,
+          interests: profile.interests,
+          availability: profile.availability,
+        }}
+      />
     </Layout>
   );
 };

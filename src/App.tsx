@@ -23,41 +23,47 @@ import HowItWorks from "./pages/HowItWorks";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
+import { LocationProvider } from "@/context/LocationContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/discover" element={<Discover />} />
-          <Route path="/category/:slug" element={<Category />} />
-          <Route path="/activity/:id" element={<ActivityDetail />} />
-          <Route path="/activity/:id/confirmed" element={<ActivityConfirmed />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/vendors" element={<Vendors />} />
-          <Route path="/vendor-signup" element={<VendorSignup />} />
-          <Route path="/vendor-dashboard" element={<VendorDashboard />} />
-          <Route path="/create" element={<CreateActivity />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/find-partner" element={<FindPartner />} />
-          <Route path="/my-pairings" element={<MyPairings />} />
-          <Route path="/my-activities" element={<MyActivities />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <LocationProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/discover" element={<Discover />} />
+              <Route path="/category/:slug" element={<Category />} />
+              <Route path="/activity/:id" element={<ActivityDetail />} />
+              <Route path="/activity/:id/confirmed" element={<ActivityConfirmed />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/vendors" element={<Vendors />} />
+              <Route path="/vendor-signup" element={<VendorSignup />} />
+              <Route path="/vendor-dashboard" element={<VendorDashboard />} />
+              <Route path="/create" element={<CreateActivity />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/find-partner" element={<FindPartner />} />
+              <Route path="/my-pairings" element={<MyPairings />} />
+              <Route path="/my-activities" element={<MyActivities />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </LocationProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

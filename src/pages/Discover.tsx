@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, Grid, List, SlidersHorizontal } from "lucide-react";
+import { MapPin, Grid, List, SlidersHorizontal, RefreshCw, X } from "lucide-react";
 import { Footprints, Dumbbell, Mountain, Tent, Heart, Building2, Camera } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/ui/search-bar";
 import ActivityCard from "@/components/cards/ActivityCard";
+import { useUserLocation } from "@/context/LocationContext";
 import yogaImage from "@/assets/activity-yoga.jpg";
 import runningImage from "@/assets/activity-running.jpg";
 import campingImage from "@/assets/activity-camping.jpg";
@@ -35,6 +36,7 @@ const activities = [
 ];
 
 const Discover = () => {
+  const { location: userCity, isLocating, detectLocation } = useUserLocation();
   const [searchParams] = useSearchParams();
   const urlQuery = searchParams.get("q") || "";
   const urlLocation = searchParams.get("location") || "";
@@ -129,9 +131,36 @@ const Discover = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>{localLocation || urlLocation || "All locations"}</span>
+              <div className="flex items-center gap-1.5 text-xs bg-muted/60 px-2.5 py-1.5 rounded-lg border border-border">
+                <MapPin className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium text-foreground">
+                  {localLocation || urlLocation || userCity || "All locations"}
+                </span>
+                {(localLocation || urlLocation) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocalLocation("");
+                    }}
+                    className="ml-1 text-muted-foreground hover:text-foreground"
+                    title="Clear location filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const detected = await detectLocation(false);
+                    if (detected) setLocalLocation(detected);
+                  }}
+                  disabled={isLocating}
+                  className="ml-1 text-primary hover:underline flex items-center gap-0.5 font-medium disabled:opacity-50"
+                  title="Auto-detect current location"
+                >
+                  <RefreshCw className={`h-3 w-3 ${isLocating ? "animate-spin" : ""}`} />
+                  {isLocating ? "..." : "Detect"}
+                </button>
               </div>
               <div className="flex items-center border border-border rounded-lg">
                 <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-r-none" onClick={() => setViewMode("grid")}>

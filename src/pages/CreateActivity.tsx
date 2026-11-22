@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Calendar, Clock, MapPin, Users, ImagePlus, ArrowLeft, ArrowRight } from "lucide-react";
+import { Calendar, Clock, MapPin, Users, ImagePlus, ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useUserLocation } from "@/context/LocationContext";
 import {
   Select,
   SelectContent,
@@ -54,6 +55,7 @@ const formSchema = z.object({
 
 const CreateActivity = () => {
   const [step, setStep] = useState(1);
+  const { location: detectedLocation, isLocating, detectLocation } = useUserLocation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,7 +64,7 @@ const CreateActivity = () => {
       description: "",
       category: "",
       activityType: "informal",
-      location: "",
+      location: detectedLocation || "",
       date: "",
       time: "",
       duration: "",
@@ -70,6 +72,19 @@ const CreateActivity = () => {
       isRecurring: false,
     },
   });
+
+  useEffect(() => {
+    if (detectedLocation && !form.getValues("location")) {
+      form.setValue("location", detectedLocation);
+    }
+  }, [detectedLocation, form]);
+
+  const handleDetectGPS = async () => {
+    const loc = await detectLocation(false);
+    if (loc) {
+      form.setValue("location", loc, { shouldValidate: true });
+    }
+  };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log(values);
@@ -276,15 +291,38 @@ const CreateActivity = () => {
                         name="location"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Location</FormLabel>
+                            <div className="flex items-center justify-between">
+                              <FormLabel>Location</FormLabel>
+                              <button
+                                type="button"
+                                onClick={handleDetectGPS}
+                                disabled={isLocating}
+                                className="text-xs text-primary hover:underline flex items-center gap-1 font-medium disabled:opacity-50"
+                              >
+                                <RefreshCw className={`h-3 w-3 ${isLocating ? "animate-spin" : ""}`} />
+                                {isLocating ? "Detecting..." : "Auto-detect current location"}
+                              </button>
+                            </div>
                             <FormControl>
                               <div className="relative">
                                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                 <Input
-                                  className="pl-10"
-                                  placeholder="Enter address or location name"
+                                  className="pl-10 pr-24"
+                                  placeholder="Enter venue, park, or city name"
                                   {...field}
                                 />
+                                <button
+                                  type="button"
+                                  onClick={handleDetectGPS}
+                                  disabled={isLocating}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-muted hover:bg-muted/80 text-foreground px-2 py-1 rounded text-xs font-medium border border-border transition-colors flex items-center gap-1"
+                                >
+                                  {isLocating ? (
+                                    <RefreshCw className="h-3 w-3 animate-spin text-primary" />
+                                  ) : (
+                                    "📍 Detect"
+                                  )}
+                                </button>
                               </div>
                             </FormControl>
                             <FormMessage />
