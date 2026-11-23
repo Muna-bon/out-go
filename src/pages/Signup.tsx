@@ -21,7 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logo from "@/assets/outgo-logo.png";
+import Logo from "@/components/brand/Logo";
 import signupHero from "@/assets/signup-hero.jpg";
 import { useUserLocation } from "@/context/LocationContext";
 
@@ -194,8 +194,8 @@ const Signup = () => {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md"
         >
-          <Link to="/" className="inline-block mb-8">
-            <img src={logo} alt="OutGo" className="h-12 w-auto" />
+          <Link to="/" className="inline-block mb-8 transition-transform duration-200 hover:scale-[1.02]">
+            <Logo size="lg" />
           </Link>
 
           <AnimatePresence mode="wait">

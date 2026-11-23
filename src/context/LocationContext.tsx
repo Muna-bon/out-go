@@ -17,15 +17,17 @@ interface LocationContextType {
 
 const STORAGE_KEY = "outgo_user_location";
 const LAST_CITY_KEY = "outgo_last_detected_city";
-const DEFAULT_LOCATION = "New York, NY";
+const DEFAULT_LOCATION = "Detecting location...";
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 // Helper to reverse geocode lat/lng to a friendly "City, State/Country"
-async function reverseGeocode(lat: number, lng: number): Promise<string> {
+async function reverseGeocode(lat?: number, lng?: number): Promise<string> {
   try {
     // Primary: BigDataCloud free client reverse geocoding (fast, no rate limits, no API key)
-    const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`;
+    // If lat & lng are omitted, BigDataCloud automatically uses client IP to return their TRUE current location!
+    const query = lat !== undefined && lng !== undefined ? `latitude=${lat}&longitude=${lng}&` : "";
+    const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?${query}localityLanguage=en`;
     const res = await fetch(bdcUrl);
     if (res.ok) {
       const data = await res.json();
@@ -39,23 +41,25 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
     console.warn("BigDataCloud reverse geocode failed, trying fallback:", e);
   }
 
-  try {
-    // Fallback: OpenStreetMap Nominatim
-    const osmUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
-    const res = await fetch(osmUrl, {
-      headers: { "Accept-Language": "en" },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const addr = data.address || {};
-      const city = addr.city || addr.town || addr.village || addr.municipality || addr.county;
-      const state = addr.state || addr.country;
-      if (city) {
-        return state ? `${city}, ${state}` : city;
+  if (lat !== undefined && lng !== undefined) {
+    try {
+      // Fallback: OpenStreetMap Nominatim
+      const osmUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
+      const res = await fetch(osmUrl, {
+        headers: { "Accept-Language": "en" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const addr = data.address || {};
+        const city = addr.city || addr.town || addr.village || addr.municipality || addr.county;
+        const state = addr.state || addr.country;
+        if (city) {
+          return state ? `${city}, ${state}` : city;
+        }
       }
+    } catch (e) {
+      console.warn("OSM reverse geocode failed:", e);
     }
-  } catch (e) {
-    console.warn("OSM reverse geocode failed:", e);
   }
 
   return "Current Location";
@@ -144,14 +148,44 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     []
   );
 
-  // Auto-detect silently on startup if supported or if user has previously authorized
+  // Auto-detect user's true location on startup and check for city changes
   useEffect(() => {
-    if ("permissions" in navigator) {
-      navigator.permissions
-        .query({ name: "geolocation" as PermissionName })
-        .then((permissionStatus) => {
+    let isMounted = true;
+
+    const initTrueLocation = async () => {
+      try {
+        const savedLocation = localStorage.getItem(STORAGE_KEY);
+        const prevCity = localStorage.getItem(LAST_CITY_KEY);
+
+        // Fetch real city from IP automatically (no permission needed)
+        const trueCity = await reverseGeocode();
+        if (isMounted && trueCity && trueCity !== "Current Location") {
+          // Check if user moved outside their previous city
+          if (prevCity && prevCity.toLowerCase() !== trueCity.toLowerCase()) {
+            toast.info("📍 New City Detected!", {
+              description: `You've moved to ${trueCity}. Your activity feed and suggestions have been updated.`,
+              duration: 6000,
+            });
+            setLocationState(trueCity);
+            setLastCity(trueCity);
+            localStorage.setItem(STORAGE_KEY, trueCity);
+            localStorage.setItem(LAST_CITY_KEY, trueCity);
+          } else if (!savedLocation || savedLocation === "Detecting location..." || savedLocation === "New York, NY") {
+            setLocationState(trueCity);
+            setLastCity(trueCity);
+            localStorage.setItem(STORAGE_KEY, trueCity);
+            localStorage.setItem(LAST_CITY_KEY, trueCity);
+          }
+        }
+      } catch (err) {
+        console.warn("Startup location check failed:", err);
+      }
+
+      // Check if GPS permission is granted for high-precision coordinates
+      if ("permissions" in navigator) {
+        try {
+          const permissionStatus = await navigator.permissions.query({ name: "geolocation" as PermissionName });
           if (permissionStatus.state === "granted") {
-            // Silently verify if user changed cities
             detectLocation(true);
           }
           permissionStatus.onchange = () => {
@@ -159,11 +193,17 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               detectLocation(false);
             }
           };
-        })
-        .catch(() => {
-          // Permissions API unsupported/blocked; skip silent auto-trigger
-        });
-    }
+        } catch (e) {
+          // Permissions API unsupported/blocked
+        }
+      }
+    };
+
+    initTrueLocation();
+
+    return () => {
+      isMounted = false;
+    };
   }, [detectLocation]);
 
   return (

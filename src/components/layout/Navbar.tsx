@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/outgo-logo.png";
+import Logo from "@/components/brand/Logo";
 import SearchDialog from "@/components/dialogs/SearchDialog";
 import NotificationsDropdown from "@/components/dropdowns/NotificationsDropdown";
 import LocationPicker from "@/components/dropdowns/LocationPicker";
@@ -47,8 +47,8 @@ const Navbar = () => {
         <div className="container-app">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="OutGo" className="h-10 w-auto" />
+            <Link to="/" className="flex items-center gap-2 transition-transform duration-200 hover:scale-[1.02]">
+              <Logo size="md" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -73,35 +73,44 @@ const Navbar = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-muted-foreground"
+                className="text-muted-foreground hover:text-foreground h-9 w-9 rounded-xl"
                 onClick={() => setSearchOpen(true)}
+                aria-label="Search activities"
               >
                 <Search className="h-5 w-5" />
               </Button>
-              <NotificationsDropdown />
-              <LocationPicker />
-              <div className="w-px h-6 bg-border mx-1" />
-              <Link to="/my-activities">
-                <Button variant="ghost" size="sm">
-                  My Activities
-                </Button>
-              </Link>
+
+              {/* Items strictly restricted to logged-in users */}
+              {user && (
+                <>
+                  <NotificationsDropdown user={user} />
+                  <LocationPicker />
+                  <div className="w-px h-6 bg-border mx-1" />
+                  <Link to="/my-activities">
+                    <Button variant="ghost" size="sm" className="rounded-xl">
+                      My Activities
+                    </Button>
+                  </Link>
+                </>
+              )}
+
               {user ? (
                 <Link to="/profile">
-                  <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/10">
+                  <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/10 rounded-xl">
                     <User className="h-4 w-4" />
                     Profile
                   </Button>
                 </Link>
               ) : (
                 <>
+                  <div className="w-px h-6 bg-border mx-1" />
                   <Link to="/login">
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" className="rounded-xl">
                       Log in
                     </Button>
                   </Link>
                   <Link to="/signup">
-                    <Button size="sm">
+                    <Button size="sm" className="rounded-xl">
                       Sign up
                     </Button>
                   </Link>
@@ -113,6 +122,7 @@ const Navbar = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="lg:hidden p-2 rounded-xl hover:bg-muted transition-colors"
+              aria-label="Toggle menu"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -155,17 +165,28 @@ const Navbar = () => {
                     {link.name}
                   </Link>
                 ))}
-                <Link
-                  to="/my-activities"
-                  onClick={() => setIsOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted"
-                >
-                  My Activities
-                </Link>
+
+                {/* Only logged in users see location and My Activities in mobile menu */}
+                {user && (
+                  <>
+                    <div className="pt-2 pb-1 px-1 flex items-center justify-between border-t border-border/50">
+                      <span className="text-xs text-muted-foreground font-medium">Current Location</span>
+                      <LocationPicker />
+                    </div>
+                    <Link
+                      to="/my-activities"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-4 py-3 rounded-xl text-base font-medium text-foreground/70 hover:text-foreground hover:bg-muted"
+                    >
+                      My Activities
+                    </Link>
+                  </>
+                )}
+
                 <div className="pt-4 flex flex-col gap-2">
                   {user ? (
                     <Link to="/profile" onClick={() => setIsOpen(false)}>
-                      <Button className="w-full gap-2">
+                      <Button className="w-full gap-2 rounded-xl">
                         <User className="h-4 w-4" />
                         My Profile
                       </Button>
@@ -173,12 +194,12 @@ const Navbar = () => {
                   ) : (
                     <>
                       <Link to="/login" onClick={() => setIsOpen(false)}>
-                        <Button variant="outline" className="w-full">
+                        <Button variant="outline" className="w-full rounded-xl">
                           Log in
                         </Button>
                       </Link>
                       <Link to="/signup" onClick={() => setIsOpen(false)}>
-                        <Button className="w-full">
+                        <Button className="w-full rounded-xl">
                           Sign up
                         </Button>
                       </Link>

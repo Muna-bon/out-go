@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
-import logo from "@/assets/outgo-logo.png";
+import Logo from "@/components/brand/Logo";
 
 const quickLinks = [
   { name: "Discover Activities", path: "/discover" },
@@ -26,8 +26,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link to="/">
-              <img src={logo} alt="OutGo" className="h-14 w-auto mb-4 brightness-0 invert" />
+            <Link to="/" className="inline-block mb-4 transition-transform duration-200 hover:scale-[1.02]">
+              <Logo lightText={true} size="md" />
             </Link>
             <p className="text-background/60 text-sm leading-relaxed mb-6">
               Connect with others for wellness activities. Discover, organize, and participate in outdoor adventures near you.

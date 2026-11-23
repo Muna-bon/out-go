@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { useUserLocation } from "@/context/LocationContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logo from "@/assets/outgo-logo.png";
+import runnerImg from "@/assets/outgo-runner.png";
 
 interface ProfileCompletionModalProps {
   open: boolean;
@@ -238,11 +238,11 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
               }}
               className="relative"
             >
-              <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-3xl bg-white shadow-xl p-3 flex items-center justify-center border-2 border-primary/20 ring-4 ring-primary/10">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-background shadow-xl p-3 flex items-center justify-center border-2 border-primary/20 ring-4 ring-primary/10 backdrop-blur-sm">
                 <img
-                  src={logo}
-                  alt="OutGo"
-                  className="w-full h-full object-contain"
+                  src={runnerImg}
+                  alt="OutGo Runner"
+                  className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-md"
                 />
               </div>
 

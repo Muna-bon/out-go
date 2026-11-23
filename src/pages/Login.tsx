@@ -19,7 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import logo from "@/assets/outgo-logo.png";
+import Logo from "@/components/brand/Logo";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -163,8 +163,8 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md"
         >
-          <Link to="/" className="inline-block mb-8">
-            <img src={logo} alt="OutGo" className="h-12 w-auto" />
+          <Link to="/" className="inline-block mb-8 transition-transform duration-200 hover:scale-[1.02]">
+            <Logo size="lg" />
           </Link>
 
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
