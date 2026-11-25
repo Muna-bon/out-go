@@ -70,19 +70,18 @@ const Navbar = () => {
 
             {/* Desktop Actions */}
             <div className="hidden lg:flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-muted-foreground hover:text-foreground h-9 w-9 rounded-xl"
-                onClick={() => setSearchOpen(true)}
-                aria-label="Search activities"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-
               {/* Items strictly restricted to logged-in users */}
               {user && (
                 <>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-muted-foreground hover:text-foreground h-9 w-9 rounded-xl"
+                    onClick={() => setSearchOpen(true)}
+                    aria-label="Search activities"
+                  >
+                    <Search className="h-5 w-5" />
+                  </Button>
                   <NotificationsDropdown user={user} />
                   <LocationPicker />
                   <div className="w-px h-6 bg-border mx-1" />
@@ -139,17 +138,19 @@ const Navbar = () => {
               className="lg:hidden bg-background border-b border-border overflow-hidden"
             >
               <div className="container-app py-4 space-y-2">
-                {/* Mobile Search */}
-                <button
-                  onClick={() => {
-                    setSearchOpen(true);
-                    setIsOpen(false);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-muted text-muted-foreground"
-                >
-                  <Search className="h-5 w-5" />
-                  <span>Search activities...</span>
-                </button>
+                {/* Mobile Search - restricted to logged-in users */}
+                {user && (
+                  <button
+                    onClick={() => {
+                      setSearchOpen(true);
+                      setIsOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-muted text-muted-foreground"
+                  >
+                    <Search className="h-5 w-5" />
+                    <span>Search activities...</span>
+                  </button>
+                )}
 
                 {navLinks.map((link) => (
                   <Link
