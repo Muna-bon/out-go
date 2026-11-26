@@ -300,7 +300,7 @@ const ActivityDetail = () => {
       {/* Message Host Dialog */}
       <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
         <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center justify-between p-4 pr-10 border-b border-border">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground text-sm">
@@ -312,9 +312,6 @@ const ActivityDetail = () => {
                 <p className="text-xs text-green-500">Online</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setShowMessageDialog(false)}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
 
           <div className="h-80 overflow-y-auto p-4 space-y-3 bg-muted/20">

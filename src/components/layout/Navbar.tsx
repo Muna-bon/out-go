@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, User } from "lucide-react";
+import { Menu, X, Search, User, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import Logo from "@/components/brand/Logo";
 import SearchDialog from "@/components/dialogs/SearchDialog";
 import NotificationsDropdown from "@/components/dropdowns/NotificationsDropdown";
@@ -22,6 +23,17 @@ const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Logged out successfully");
+      navigate("/");
+    } catch (err: any) {
+      toast.error("Error signing out");
+    }
+  };
 
   useEffect(() => {
     // Check initial session
@@ -94,12 +106,24 @@ const Navbar = () => {
               )}
 
               {user ? (
-                <Link to="/profile">
-                  <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/10 rounded-xl">
-                    <User className="h-4 w-4" />
-                    Profile
+                <div className="flex items-center gap-2">
+                  <Link to="/profile">
+                    <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/10 rounded-xl">
+                      <User className="h-4 w-4" />
+                      Profile
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                    title="Log out of your account"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden xl:inline">Log out</span>
                   </Button>
-                </Link>
+                </div>
               ) : (
                 <>
                   <div className="w-px h-6 bg-border mx-1" />
@@ -186,12 +210,31 @@ const Navbar = () => {
 
                 <div className="pt-4 flex flex-col gap-2">
                   {user ? (
-                    <Link to="/profile" onClick={() => setIsOpen(false)}>
-                      <Button className="w-full gap-2 rounded-xl">
-                        <User className="h-4 w-4" />
-                        My Profile
+                    <>
+                      <Link to="/profile" onClick={() => setIsOpen(false)}>
+                        <Button className="w-full gap-2 rounded-xl">
+                          <User className="h-4 w-4" />
+                          My Profile
+                        </Button>
+                      </Link>
+                      <Link to="/settings" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" className="w-full gap-2 rounded-xl">
+                          <Settings className="h-4 w-4" />
+                          Settings
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsOpen(false);
+                          handleSignOut();
+                        }}
+                        className="w-full gap-2 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Log out
                       </Button>
-                    </Link>
+                    </>
                   ) : (
                     <>
                       <Link to="/login" onClick={() => setIsOpen(false)}>

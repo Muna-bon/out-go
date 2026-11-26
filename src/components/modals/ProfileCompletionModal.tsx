@@ -79,12 +79,12 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
   const [interests, setInterests] = useState<string[]>(
     initialData?.interests && initialData.interests.length > 0
       ? initialData.interests
-      : ["Running", "Walking & Jogging"]
+      : []
   );
   const [availability, setAvailability] = useState<string[]>(
     initialData?.availability && initialData.availability.length > 0
       ? initialData.availability
-      : ["Weekend Mornings"]
+      : []
   );
   const [isSaving, setIsSaving] = useState(false);
 
@@ -216,16 +216,6 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
               className="w-56 h-56 rounded-full bg-primary/20 blur-3xl pointer-events-none"
             />
           </div>
-
-          {/* Close button in top right */}
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="absolute top-4 right-4 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors"
-            title="Close for now"
-          >
-            <X className="h-5 w-5" />
-          </button>
 
           {/* Animated OutGo Logo Badge */}
           <div className="relative inline-block mb-4">

@@ -22,6 +22,7 @@ import MyActivities from "./pages/MyActivities";
 import HowItWorks from "./pages/HowItWorks";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { LocationProvider } from "@/context/LocationContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -56,6 +57,8 @@ const App = () => (
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/notifications" element={<Settings />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

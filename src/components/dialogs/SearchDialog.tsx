@@ -78,7 +78,7 @@ const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
         <div className="p-6 border-b border-border">
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-4 pr-8">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
@@ -89,9 +89,6 @@ const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
                 autoFocus
               />
             </div>
-            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-              <X className="h-5 w-5" />
-            </Button>
           </div>
 
           <div className="flex gap-3">
