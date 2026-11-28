@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Zap, Star, MessageCircle, UserPlus, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { requireCompleteProfile } from "@/utils/profileValidation";
 
 interface PartnerCardProps {
   id: string;
@@ -30,6 +31,7 @@ interface PartnerCardProps {
 }
 
 const PartnerCard = ({
+  id,
   name,
   avatar,
   age,
@@ -47,12 +49,54 @@ const PartnerCard = ({
   const [message, setMessage] = useState("");
   const [isRequested, setIsRequested] = useState(false);
 
+  useEffect(() => {
+    try {
+      const sent = JSON.parse(localStorage.getItem("outgo_user_pairings_sent") || "[]");
+      if (sent.some((item: any) => item.partnerId === id || item.name === name)) {
+        setIsRequested(true);
+      }
+    } catch {}
+  }, [id, name]);
+
+  const handleOpenRequest = () => {
+    requireCompleteProfile("request an activity partner", () => {
+      setShowRequestDialog(true);
+    });
+  };
+
+  const handleOpenMessage = () => {
+    requireCompleteProfile("message an activity partner", () => {
+      setShowRequestDialog(true);
+    });
+  };
+
   const handleSendRequest = () => {
     setIsRequested(true);
     setShowRequestDialog(false);
+
+    try {
+      const newRequest = {
+        id: `req-${Date.now()}`,
+        partnerId: id,
+        name,
+        age,
+        distance,
+        activityType,
+        pace,
+        preferredTime,
+        message: message.trim() || `Hi ${name}! I saw your profile and would love to pair up for ${activityType.toLowerCase()}.`,
+        sentAt: "Just now",
+        rating,
+      };
+      const existing = JSON.parse(localStorage.getItem("outgo_user_pairings_sent") || "[]");
+      localStorage.setItem("outgo_user_pairings_sent", JSON.stringify([newRequest, ...existing]));
+    } catch (e) {
+      console.warn("Storage warning:", e);
+    }
+
     setMessage("");
     toast.success(`Pairing request sent to ${name}!`, {
-      description: "You'll be notified when they respond.",
+      description: "You'll be notified when they accept. You can track this in My Pairings.",
     });
   };
 
@@ -144,12 +188,12 @@ const PartnerCard = ({
               Request Sent
             </Button>
           ) : (
-            <Button className="flex-1" onClick={() => setShowRequestDialog(true)}>
+            <Button className="flex-1" onClick={handleOpenRequest}>
               <UserPlus className="h-4 w-4 mr-2" />
               Request Pairing
             </Button>
           )}
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" onClick={handleOpenMessage} title={`Message ${name}`}>
             <MessageCircle className="h-4 w-4" />
           </Button>
         </div>

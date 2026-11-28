@@ -172,6 +172,13 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
         availability,
       };
 
+      try {
+        localStorage.setItem("outgo_user_profile", JSON.stringify(updatedData));
+        window.dispatchEvent(new Event("profile-updated"));
+      } catch (e) {
+        console.warn("Storage sync:", e);
+      }
+
       if (onProfileUpdated) {
         onProfileUpdated(updatedData);
       }
@@ -190,15 +197,15 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
 
   const handleDismiss = () => {
     toast.info("Profile setup postponed", {
-      description: "You can update your profile anytime to start matching with workout partners.",
-      duration: 5000,
+      description: "Note: Key features (creating activities, sending partner pairings, and joining activities) remain locked until your profile is complete.",
+      duration: 6000,
     });
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[92vh] overflow-y-auto p-0 gap-0 border-border shadow-2xl rounded-2xl">
+      <DialogContent className="sm:max-w-xl max-h-[92vh] overflow-y-auto p-0 gap-0 border-border shadow-2xl rounded-2xl [&>button:last-child]:hidden">
         {/* Animated Header Banner with Logo & Orbiting Badges */}
         <div className="relative overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6 sm:p-8 text-center border-b border-border">
           {/* Subtle animated background radial glow */}
@@ -437,7 +444,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({
               onClick={handleDismiss}
               className="w-full sm:w-auto text-xs text-muted-foreground hover:text-foreground"
             >
-              Explore First, Complete Later
+              Complete Profile Later
             </Button>
 
             <Button

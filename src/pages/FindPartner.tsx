@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Filter, Users, Clock, Footprints, Search, Zap, RefreshCw } from "lucide-react";
+import { MapPin, Filter, Users, Clock, Footprints, Search, Zap, RefreshCw, Sparkles, HeartHandshake } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,39 @@ import {
 } from "@/components/ui/select";
 import PartnerCard from "@/components/cards/PartnerCard";
 import { useUserLocation } from "@/context/LocationContext";
+import { supabase } from "@/integrations/supabase/client";
 
-const mockPartners = [
+const basePartners = [
+  {
+    id: "partner-munah-doe",
+    name: "Munah Doe",
+    avatar: null,
+    age: 25,
+    distance: "0.2 miles",
+    activityType: "Walking & Jogging",
+    preferredTime: "Morning",
+    pace: "Moderate",
+    bio: "Passionate morning walker and jogger! Looking for an upbeat, reliable partner to hit the trails, build consistency, and keep each other motivated.",
+    interests: ["Morning jogs", "Scenic trails", "Healthy lifestyle", "Coffee after"],
+    rating: 5.0,
+    completedPairings: 38,
+    isOnline: true,
+  },
+  {
+    id: "partner-maimuna-hussaini",
+    name: "Maimuna Hussaini",
+    avatar: null,
+    age: 26,
+    distance: "0.2 miles",
+    activityType: "Walking & Jogging",
+    preferredTime: "Morning",
+    pace: "Moderate",
+    bio: "Fitness and wellness enthusiast passionate about daily walks and healthy habits. Excited to meet a committed workout partner nearby!",
+    interests: ["Daily walking", "Cardio fitness", "Outdoor trails", "Health & Wellness"],
+    rating: 5.0,
+    completedPairings: 45,
+    isOnline: true,
+  },
   {
     id: "1",
     name: "Sarah Johnson",
@@ -123,18 +154,53 @@ const itemVariants = {
 
 const FindPartner = () => {
   const { location: userCity, isLocating, detectLocation } = useUserLocation();
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activityFilter, setActivityFilter] = useState("all");
   const [paceFilter, setPaceFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
 
-  const filteredPartners = mockPartners.filter((partner) => {
-    const matchesSearch = partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      partner.bio.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesActivity = activityFilter === "all" || partner.activityType.toLowerCase() === activityFilter;
-    const matchesPace = paceFilter === "all" || partner.pace.toLowerCase() === paceFilter;
-    const matchesTime = timeFilter === "all" || partner.preferredTime.toLowerCase() === timeFilter;
-    
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUser(user);
+    });
+  }, []);
+
+  const userIdentifier = (
+    currentUser?.user_metadata?.full_name ||
+    currentUser?.user_metadata?.name ||
+    currentUser?.email ||
+    ""
+  ).toLowerCase();
+
+  const isMaimuna = userIdentifier.includes("maimuna");
+  const isMunah = userIdentifier.includes("munah");
+
+  // Filter out self so user doesn't match with themselves
+  const eligiblePartners = basePartners.filter((p) => {
+    if (isMaimuna && p.id === "partner-maimuna-hussaini") return false;
+    if (isMunah && p.id === "partner-munah-doe") return false;
+    return true;
+  });
+
+  const filteredPartners = eligiblePartners.filter((partner) => {
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      partner.name.toLowerCase().includes(q) ||
+      partner.bio.toLowerCase().includes(q) ||
+      partner.interests.some((i) => i.toLowerCase().includes(q));
+
+    const matchesActivity =
+      activityFilter === "all" ||
+      partner.activityType.toLowerCase().includes(activityFilter);
+
+    const matchesPace =
+      paceFilter === "all" || partner.pace.toLowerCase() === paceFilter;
+
+    const matchesTime =
+      timeFilter === "all" || partner.preferredTime.toLowerCase() === timeFilter;
+
     return matchesSearch && matchesActivity && matchesPace && matchesTime;
   });
 
@@ -171,7 +237,7 @@ const FindPartner = () => {
                 <div className="text-sm text-primary-foreground/70">Successful Pairings</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-2xl">
-                <div className="text-2xl font-bold text-primary-foreground">4.8★</div>
+                <div className="text-2xl font-bold text-primary-foreground">4.9★</div>
                 <div className="text-sm text-primary-foreground/70">Average Rating</div>
               </div>
             </div>
@@ -209,7 +275,7 @@ const FindPartner = () => {
             <div className="relative flex-1 w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
-                placeholder="Search by name or interests..."
+                placeholder="Search by name (e.g., Munah Doe, Maimuna), bio, or interests..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-12"
@@ -301,7 +367,7 @@ const FindPartner = () => {
             </h2>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" />
-              <span>New York, NY</span>
+              <span>{userCity}</span>
             </div>
           </div>
 
@@ -329,7 +395,7 @@ const FindPartner = () => {
               <Users className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">No partners found</h3>
               <p className="text-muted-foreground mb-6">
-                Try adjusting your filters to find more activity partners
+                Try adjusting your filters or search keywords to find more activity partners
               </p>
               <Button
                 onClick={() => {

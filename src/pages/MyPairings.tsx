@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Users, UserPlus, Check, X, MessageCircle, Calendar, MapPin, Star, Clock, ChevronRight } from "lucide-react";
@@ -115,6 +115,19 @@ const MyPairings = () => {
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [selectedPairing, setSelectedPairing] = useState<ActivePairing | null>(null);
 
+  useEffect(() => {
+    try {
+      const storedSent = JSON.parse(localStorage.getItem("outgo_user_pairings_sent") || "[]");
+      if (storedSent && storedSent.length > 0) {
+        const storedIds = new Set(storedSent.map((s: any) => s.id));
+        const filteredInitial = sentRequests.filter((s) => !storedIds.has(s.id));
+        setSent([...storedSent, ...filteredInitial]);
+      }
+    } catch (e) {
+      console.warn("Could not parse sent pairings from storage:", e);
+    }
+  }, []);
+
   const handleAccept = (request: PairingRequest) => {
     setRequests(requests.filter((r) => r.id !== request.id));
     setPairings([
@@ -144,7 +157,13 @@ const MyPairings = () => {
   };
 
   const handleCancelRequest = (requestId: string) => {
-    setSent(sent.filter((r) => r.id !== requestId));
+    const updated = sent.filter((r) => r.id !== requestId);
+    setSent(updated);
+    try {
+      const stored = JSON.parse(localStorage.getItem("outgo_user_pairings_sent") || "[]");
+      const filtered = stored.filter((r: any) => r.id !== requestId);
+      localStorage.setItem("outgo_user_pairings_sent", JSON.stringify(filtered));
+    } catch {}
     toast.info("Request cancelled");
   };
 

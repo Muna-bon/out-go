@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Building2, Upload, Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { Building2, Upload, Check, ArrowRight, ArrowLeft, CheckCircle2, X, FileText } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +60,29 @@ const VendorSignup = () => {
     website: "",
     agreedToTerms: false,
   });
+
+  const [uploadedDocs, setUploadedDocs] = useState<Record<string, { name: string; size: string }>>({});
+
+  const handleDocUpload = (docKey: string, file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be under 10MB");
+      return;
+    }
+    const sizeStr = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+    setUploadedDocs((prev) => ({
+      ...prev,
+      [docKey]: { name: file.name, size: sizeStr },
+    }));
+    toast.success(`Uploaded: ${file.name}`);
+  };
+
+  const removeDoc = (docKey: string) => {
+    setUploadedDocs((prev) => {
+      const next = { ...prev };
+      delete next[docKey];
+      return next;
+    });
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -286,26 +309,86 @@ const VendorSignup = () => {
 
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold mb-6">Verification Documents</h2>
-                <p className="text-muted-foreground text-sm mb-6">
-                  Please upload the following documents to verify your business. This helps us maintain quality and trust on our platform.
-                </p>
+                <div>
+                  <h2 className="text-xl font-semibold mb-1">Verification Documents</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Upload official documents to verify your business facility. Accepted formats: PDF, PNG, JPG (up to 10MB each).
+                  </p>
+                </div>
                 
-                {["Business License", "Insurance Certificate", "Facility Photos"].map((doc) => (
-                  <div key={doc} className="border border-dashed border-border rounded-xl p-6 hover:border-primary/50 transition-colors cursor-pointer">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-                        <Upload className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{doc}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Click to upload or drag and drop
-                        </p>
+                {[
+                  { key: "license", title: "Business License / Registration", desc: "Government issued trade license or certificate" },
+                  { key: "insurance", title: "Liability Insurance Certificate", desc: "Active commercial general liability policy" },
+                  { key: "facility", title: "Facility / Gym Photos", desc: "High-resolution photos of workout areas and amenities" },
+                ].map((doc) => {
+                  const uploaded = uploadedDocs[doc.key];
+                  return (
+                    <div
+                      key={doc.key}
+                      className={`border-2 border-dashed rounded-2xl p-6 transition-all ${
+                        uploaded
+                          ? "border-emerald-500/50 bg-emerald-500/5"
+                          : "border-border hover:border-primary/50 hover:bg-muted/20"
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        id={`doc-${doc.key}`}
+                        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleDocUpload(doc.key, file);
+                        }}
+                        className="hidden"
+                      />
+
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                            uploaded ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"
+                          }`}>
+                            {uploaded ? <CheckCircle2 className="h-6 w-6" /> : <FileText className="h-6 w-6" />}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">{doc.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {uploaded ? (
+                                <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                                  {uploaded.name} ({uploaded.size})
+                                </span>
+                              ) : (
+                                doc.desc
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          {uploaded ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeDoc(doc.key)}
+                              className="text-xs text-destructive hover:bg-destructive/10"
+                            >
+                              <X className="h-3.5 w-3.5 mr-1" />
+                              Remove
+                            </Button>
+                          ) : (
+                            <label
+                              htmlFor={`doc-${doc.key}`}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+                            >
+                              <Upload className="h-3.5 w-3.5" />
+                              Browse File
+                            </label>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 

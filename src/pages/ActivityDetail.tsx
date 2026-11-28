@@ -15,6 +15,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { requireCompleteProfile } from "@/utils/profileValidation";
 import yogaImage from "@/assets/activity-yoga.jpg";
 import runningImage from "@/assets/activity-running.jpg";
 import campingImage from "@/assets/activity-camping.jpg";
@@ -80,6 +81,18 @@ const ActivityDetail = () => {
   const [messages, setMessages] = useState<{ text: string; fromMe: boolean; time: string }[]>([]);
 
   const activity = id ? activitiesData[id] : null;
+
+  const handleOpenJoinDialog = () => {
+    requireCompleteProfile("RSVP & join activities", () => {
+      setShowJoinDialog(true);
+    });
+  };
+
+  const handleOpenMessageDialog = () => {
+    requireCompleteProfile("message activity hosts", () => {
+      setShowMessageDialog(true);
+    });
+  };
 
   const handleJoin = () => {
     setIsJoining(true);
@@ -243,7 +256,7 @@ const ActivityDetail = () => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full mt-4 gap-2" onClick={() => setShowMessageDialog(true)}>
+                  <Button variant="outline" size="sm" className="w-full mt-4 gap-2" onClick={handleOpenMessageDialog}>
                     <MessageCircle className="h-4 w-4" /> Message Host
                   </Button>
                 </div>
@@ -265,7 +278,7 @@ const ActivityDetail = () => {
                     <span className="text-muted-foreground">Spots available</span>
                     <span className="font-semibold text-primary">{spotsLeft} left</span>
                   </div>
-                  <Button size="lg" className="w-full" onClick={() => setShowJoinDialog(true)} disabled={spotsLeft === 0}>
+                  <Button size="lg" className="w-full" onClick={handleOpenJoinDialog} disabled={spotsLeft === 0}>
                     {spotsLeft > 0 ? "Join This Activity" : "Activity Full"}
                   </Button>
                   <p className="text-xs text-center text-muted-foreground">Free to join • No payment required</p>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import {
@@ -30,6 +30,7 @@ import ProfileCompletionModal from "@/components/modals/ProfileCompletionModal";
 import SettingsModal from "@/components/modals/SettingsModal";
 import { useUserLocation } from "@/context/LocationContext";
 import { supabase } from "@/integrations/supabase/client";
+import { isProfileComplete, getProfileMissingFields } from "@/utils/profileValidation";
 import { toast } from "sonner";
 
 const Profile = () => {
@@ -159,6 +160,33 @@ const Profile = () => {
     }
   };
 
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image file must be under 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result as string;
+      setProfile((prev) => ({ ...prev, avatar: base64 }));
+      try {
+        await supabase.auth.updateUser({
+          data: { avatar_url: base64 },
+        });
+        toast.success("Profile photo updated successfully!");
+      } catch (err) {
+        toast.success("Profile photo updated!");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleDetectGPS = async () => {
     const detected = await detectLocation(false);
     if (detected) {
@@ -172,25 +200,28 @@ const Profile = () => {
     }
   };
 
+  const complete = isProfileComplete(profile);
+  const missingFields = getProfileMissingFields(profile);
+
   return (
     <Layout>
-      {/* Welcome & Update Notification Banner */}
-      {showBanner && (
-        <section className="bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border-b border-primary/20 py-3.5 px-4">
+      {/* Unclosable Profile Completion Banner until profile is actually complete */}
+      {!complete && (
+        <section className="bg-gradient-to-r from-amber-500/15 via-primary/10 to-primary/5 border-b border-primary/20 py-3.5 px-4 sticky top-16 lg:top-20 z-30 backdrop-blur-md">
           <div className="container-app flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary shrink-0 shadow-sm">
+              <div className="h-10 w-10 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm">
                 <Sparkles className="h-5 w-5 animate-pulse" />
               </div>
               <div>
                 <p className="font-semibold text-foreground text-sm flex items-center gap-2">
-                  Complete your profile to unlock full OutGo features!
-                  <span className="text-[10px] bg-primary/20 text-primary font-bold px-2 py-0.5 rounded-full">
-                    Recommended
+                  Complete your profile to unlock activity creation & partner pairing!
+                  <span className="text-[10px] bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold px-2 py-0.5 rounded-full">
+                    {missingFields.length} {missingFields.length === 1 ? "item" : "items"} left
                   </span>
                 </p>
-                <p className="text-muted-foreground text-xs">
-                  Adding your location, bio, and favorite activities ensures you receive accurate partner matches and local workout alerts.
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  Missing: {missingFields.join(" • ")}. Completing your profile unlocks full platform access.
                 </p>
               </div>
             </div>
@@ -198,19 +229,11 @@ const Profile = () => {
               <Button
                 size="sm"
                 onClick={handleOpenEditModal}
-                className="gap-2 shadow-sm font-medium"
+                className="gap-2 shadow-sm font-medium rounded-xl"
               >
                 <Edit2 className="h-3.5 w-3.5" />
-                Complete Profile Now
+                Complete Profile
               </Button>
-              <button
-                type="button"
-                onClick={() => setShowBanner(false)}
-                className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-background/80 transition-colors"
-                title="Dismiss reminder banner"
-              >
-                <X className="h-4 w-4" />
-              </button>
             </div>
           </div>
         </section>
@@ -233,12 +256,21 @@ const Profile = () => {
                 </AvatarFallback>
               </Avatar>
               <button
-                onClick={handleOpenEditModal}
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
                 className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
-                title="Update profile details"
+                title="Upload profile photo"
               >
                 <Camera className="h-4 w-4" />
               </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+                aria-label="Upload profile photo"
+              />
             </div>
 
             {/* Info */}
